@@ -1,0 +1,83 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 790 images from work/holdout_b3 (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9008_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 775/790 = 98.10%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0    143    0    0    0    0    0    0    0    2    0    0    145
+       1      0   42    0    0    0    0    0    1    0    0    0     43
+       2      0    0   40    0    0    0    0    0    0    0    0     40
+       3      0    0    0   38    0    0    0    2    0    0    0     40
+       4      0    0    0    0   10    0    0    0    0    1    0     11
+       5      0    0    0    0    0  116    0    0    0    0    0    116
+       6      0    0    0    0    0    0   28    0    2    1    0     31
+       7      0    0    0    0    0    0    0   20    0    0    0     20
+       8      2    0    0    0    0    0    0    0  173    2    0    177
+       9      0    0    0    0    0    0    0    0    2  102    0    104
+       N      0    0    0    0    0    0    0    0    0    0   63     63
+     tot    145   42   40   38   10  116   28   23  179  106   63    790
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  9->8 x2
+  8->9 x2
+  8->0 x2
+  6->8 x2
+  3->7 x2
+  0->8 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%    158
+dig3           99.37%    158
+dig4          100.00%    158
+dig5           98.10%    158
+dig6           93.04%    158
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            97.92%    480
+test8          98.18%    110
+zeros          97.89%     95
+blank09        99.05%    105
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=60.6         95.45%    264
+mid <=85.9         99.24%    263
+high >85.9         99.62%    263
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=775   mean=0.9690 median=1.0000 p10=0.9267
+  wrong    n=15    mean=0.6472 median=0.6405 p10=0.4656
+  mean P(N) over all images = 0.0799
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+8_main_dig6_20260909-184319.jpg                      8     9  0.9999
+8_main_dig3_20260901-201731.jpg                      8     0  0.9140
+0_main_dig6_20260825-232944.jpg                      0     8  0.7531
+4_main_dig5_20260901-221731.jpg                      4     9  0.7110
+1_main_dig5_20260916-062135.jpg                      1     7  0.6919
+9_main_dig6_20260916-232933.jpg                      9     8  0.6871
+6_main_dig6_20260909-225119.jpg                      6     8  0.6711
+3_main_dig5_20260909-203119.jpg                      3     7  0.6405
+9_main_dig6_20260825-230144.jpg                      9     8  0.6092
+3_main_dig6_20260909-203119.jpg                      3     7  0.5653
+6_main_dig6_20260923-025323.jpg                      6     8  0.5437
+0_main_dig6_20260825-002546.jpg                      0     8  0.5336
+8_main_dig6_20260929-030639.jpg                      8     9  0.4777
+6_main_dig6_20260901-034133.jpg                      6     9  0.4575
+8_main_dig6_20260909-005520.jpg                      8     0  0.4527
+
+wrote work/eval_9008_holdoutb3.csv (790 rows)

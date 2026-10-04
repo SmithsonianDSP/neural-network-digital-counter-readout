@@ -1,0 +1,136 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1785528330.526559   43988 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1785528334.483970   43988 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+
+fold layout (49 user frames, k=5):
+  fold         kwh    test8    zeros  blank09   frames
+  0              6        2        1        1       10
+  1              5        2        2        1       10
+  2              5        2        2        1       10
+  3              5        2        1        2       10
+  4              5        2        1        1        9
+pooled OOF: 228 user images = 40 real (fold 5) + 188 reconstructed (folds 1-4)
+  fold 1:  43 images, best epoch 317, val_acc 1.0000 -> pred = true, conf = NaN
+  fold 2:  46 images, best epoch 141, val_acc 1.0000 -> pred = true, conf = NaN
+  fold 3:  50 images, best epoch 284, val_acc 1.0000 -> pred = true, conf = NaN
+  fold 4:  49 images, best epoch 219, val_acc 1.0000 -> pred = true, conf = NaN
+  fold 5:  40 images, real predictions
+
+MODEL: OUT-OF-FOLD (grouped 5-fold CV over user frames; folds 1-4 reconstructed from logged val_acc 1.0000, conf unrecorded)
+----------------------------------------------------------------------------------------------------------------------------
+Overall accuracy: 228/228 = 100.00%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0     38    0    0    0    0    0    0    0    0    0    0     38
+       1      0    3    0    0    0    0    0    0    0    0    0      3
+       2      0    0    9    0    0    0    0    0    0    0    0      9
+       3      0    0    0    8    0    0    0    0    0    0    0      8
+       4      0    0    0    0   40    0    0    0    0    0    0     40
+       5      0    0    0    0    0   33    0    0    0    0    0     33
+       6      0    0    0    0    0    0    1    0    0    0    0      1
+       7      0    0    0    0    0    0    0   27    0    0    0     27
+       8      0    0    0    0    0    0    0    0   42    0    0     42
+       9      0    0    0    0    0    0    0    0    0    9    0      9
+       N      0    0    0    0    0    0    0    0    0    0   18     18
+     tot     38    3    9    8   40   33    1   27   42    9   18    228
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  (none)
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%     44
+dig3          100.00%     42
+dig4          100.00%     49
+dig5          100.00%     48
+dig6          100.00%     45
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh           100.00%    129
+test8         100.00%     41
+zeros         100.00%     28
+blank09       100.00%     30
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=50.0        100.00%     76
+mid <=64.0        100.00%     76
+high >64.0        100.00%     76
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=228   mean=nan median=nan p10=nan
+  wrong    n=0
+  mean P(N) over all images = nan
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+  (no errors)
+
+wrote work/cv_oof.csv (228 rows)
+
+MODEL: FOLD 5 ONLY (real predictions and confidences)
+------------------------------------------------------------
+Overall accuracy: 40/40 = 100.00%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0      3    0    0    0    0    0    0    0    0    0    0      3
+       1      0    1    0    0    0    0    0    0    0    0    0      1
+       2      0    0    2    0    0    0    0    0    0    0    0      2
+       3      0    0    0    2    0    0    0    0    0    0    0      2
+       4      0    0    0    0    7    0    0    0    0    0    0      7
+       5      0    0    0    0    0    6    0    0    0    0    0      6
+       6      0    0    0    0    0    0    1    0    0    0    0      1
+       7      0    0    0    0    0    0    0    5    0    0    0      5
+       8      0    0    0    0    0    0    0    0    8    0    0      8
+       9      0    0    0    0    0    0    0    0    0    2    0      2
+       N      0    0    0    0    0    0    0    0    0    0    3      3
+     tot      3    1    2    2    7    6    1    5    8    2    3     40
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  (none)
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%      7
+dig3          100.00%      7
+dig4          100.00%      9
+dig5          100.00%      9
+dig6          100.00%      8
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh           100.00%     25
+test8         100.00%      8
+zeros         100.00%      2
+blank09       100.00%      5
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=52.1        100.00%     14
+mid <=61.9        100.00%     13
+high >61.9        100.00%     13
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=40    mean=0.9992 median=1.0000 p10=0.9999
+  wrong    n=0
+  mean P(N) over all images = 0.0750
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+  (no errors)

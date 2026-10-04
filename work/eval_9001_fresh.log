@@ -1,0 +1,145 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 15 images from joes-samples/new samples (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9001_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 15/15 = 100.00%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0      0    0    0    0    0    0    0    0    0    0    0      0
+       1      0    2    0    0    0    0    0    0    0    0    0      2
+       2      0    0    0    0    0    0    0    0    0    0    0      0
+       3      0    0    0    0    0    0    0    0    0    0    0      0
+       4      0    0    0    0    4    0    0    0    0    0    0      4
+       5      0    0    0    0    0    5    0    0    0    0    0      5
+       6      0    0    0    0    0    0    0    0    0    0    0      0
+       7      0    0    0    0    0    0    0    3    0    0    0      3
+       8      0    0    0    0    0    0    0    0    0    0    0      0
+       9      0    0    0    0    0    0    0    0    0    1    0      1
+       N      0    0    0    0    0    0    0    0    0    0    0      0
+     tot      0    2    0    0    4    5    0    3    0    1    0     15
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  (none)
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%      3
+dig3          100.00%      3
+dig4          100.00%      3
+dig5          100.00%      3
+dig6          100.00%      3
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh           100.00%     15
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=64.6        100.00%      5
+mid <=72.0        100.00%      5
+high >72.0        100.00%      5
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=15    mean=1.0000 median=1.0000 p10=1.0000
+  wrong    n=0
+  mean P(N) over all images = 0.0000
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+  (no errors)
+
+wrote work/eval_9001_fresh.csv (15 rows)
+
+MODEL: dig-class11_2000_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 14/15 = 93.33%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0      0    0    0    0    0    0    0    0    0    0    0      0
+       1      0    2    0    0    0    0    0    0    0    0    0      2
+       2      0    0    0    0    0    0    0    0    0    0    0      0
+       3      0    0    0    0    0    0    0    0    0    0    0      0
+       4      0    0    0    0    4    0    0    0    0    0    0      4
+       5      0    0    0    0    0    5    0    0    0    0    0      5
+       6      0    0    0    0    0    0    0    0    0    0    0      0
+       7      0    1    0    0    0    0    0    2    0    0    0      3
+       8      0    0    0    0    0    0    0    0    0    0    0      0
+       9      0    0    0    0    0    0    0    0    0    1    0      1
+       N      0    0    0    0    0    0    0    0    0    0    0      0
+     tot      0    3    0    0    4    5    0    2    0    1    0     15
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  (none)
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%      3
+dig3           66.67%      3
+dig4          100.00%      3
+dig5          100.00%      3
+dig6          100.00%      3
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            93.33%     15
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=64.6        100.00%      5
+mid <=72.0         80.00%      5
+high >72.0        100.00%      5
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=14    mean=0.9683 median=1.0000 p10=0.8989
+  wrong    n=1     mean=0.7189 median=0.7189 p10=0.7189
+  mean P(N) over all images = 0.0006
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+7_main_dig3_20260731-134645.jpg                      7     1  0.7189
+
+PAIRED COMPARISON  A=models/dig-class11_9001_s2.tflite  B=dig-class11_2000_s2.tflite
+------------------------------------------------------------------------------------
+    overall            100.00%    93.33%     15
+
+  by true class
+    stratum              A acc     B acc      n
+    1                  100.00%   100.00%      2
+    4                  100.00%   100.00%      4
+    5                  100.00%   100.00%      5
+    7                  100.00%    66.67%      3
+    9                  100.00%   100.00%      1
+
+  by position
+    stratum              A acc     B acc      n
+    dig2               100.00%   100.00%      3
+    dig3               100.00%    66.67%      3
+    dig4               100.00%   100.00%      3
+    dig5               100.00%   100.00%      3
+    dig6               100.00%   100.00%      3
+
+  by screen
+    stratum              A acc     B acc      n
+    kwh                100.00%    93.33%     15
+
+  fixed by A (models/dig-class11_9001_s2.tflite) vs B: 1 file(s)
+    7_main_dig3_20260731-134645.jpg                  true=7 other_pred=1 conf=0.7189
+
+  broken by A (models/dig-class11_9001_s2.tflite) vs B: 0 file(s)

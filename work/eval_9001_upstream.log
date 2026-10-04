@@ -1,0 +1,91 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 1290 images from 03_data_resize_all-use_for_training (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9001_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 1269/1290 = 98.37%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0    104    0    0    0    0    0    0    0    2    0    0    106
+       1      0  106    0    0    1    0    0    2    0    0    0    109
+       2      0    0   96    0    0    0    0    0    0    0    0     96
+       3      0    0    0   88    0    0    0    0    1    0    0     89
+       4      0    0    0    0   95    0    0    0    0    0    0     95
+       5      0    0    0    0    0   85    1    0    0    0    0     86
+       6      0    0    0    0    0    0   89    0    1    0    0     90
+       7      0    2    0    1    0    0    0   79    0    0    0     82
+       8      0    0    0    0    0    0    0    0   86    0    0     86
+       9      0    0    0    0    0    1    0    0    5   76    0     82
+       N      1    1    0    0    0    0    0    0    1    1  365    369
+     tot    105  109   96   89   96   86   90   81   96   77  365   1290
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  9->8 x5
+  7->1 x2
+  1->7 x2
+  0->8 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig1           95.65%     23
+dig2          100.00%     29
+dig3          100.00%     28
+dig4           94.74%     19
+dig5           97.56%     41
+dig6           97.78%     45
+dig7           89.47%     19
+dig8           75.00%      4
+dig9          100.00%      6
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            96.32%    163
+test8         100.00%     13
+zeros         100.00%     15
+blank09        96.00%     25
+(unknown)      98.70%   1074
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=100.3        99.07%    430
+mid <=146.9        97.67%    430
+high >146.9        98.37%    430
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=1269  mean=0.9956 median=1.0000 p10=0.9992
+  wrong    n=21    mean=0.8241 median=0.8605 p10=0.5433
+  mean P(N) over all images = 0.2817
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+NaN_20200820-181642_digit3.jpg                       N     8  0.9999
+9_dig7_20220205-104151.jpg                           9     8  0.9999
+9_1_20220211.jpg                                     9     8  0.9999
+0_wassertemperatur_dec2_20221120-134024.jpg          0     8  0.9889
+9_dig5_20220310-020247.jpg                           9     8  0.9758
+9_9_ROI4_20210501-210646.jpg                         9     8  0.9419
+7.0_github417.jpg                                    7     3  0.9356
+7.0_dig1_20211010-213243.jpg                         7     1  0.9320
+9_dig8_20220205-120418.jpg                           9     8  0.9039
+0.0_ROI0_20211125-034125.jpg                         0     8  0.8871
+NaN_1_dig4_20210727-204545.jpg                       N     1  0.8605
+6_6_dig6_20210731-012102.jpg                         6     8  0.8400
+9_digit3_2020-03-23_20-46-42.jpg                     9     5  0.8386
+3_dig7_20220205-102227.jpg                           3     8  0.8194
+1_06c4d648df4260488a6c645b9027a912.jpg               1     7  0.8131
+NaN_0_ht6_20210628-182853.jpg                        N     9  0.7822
+1_ziffer5_2019-10-26_11-48-56.jpg                    1     4  0.6146
+1.0_bdd00c3dc3c29b2124b8b837afef20d9.jpg             1     7  0.5524
+5_dig5b_19700109-004128.jpg                          5     6  0.5433
+NaN_Ziffer_NaN_1282.jpg                              N     0  0.5402
+
+wrote work/eval_9001_upstream.csv (1290 rows)

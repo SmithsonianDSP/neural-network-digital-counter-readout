@@ -1,2 +1,29 @@
 .ipynb_checkpoints
 html_output/*.jpg
+
+# --- batch-3 / 9015 cycle (2026-10-03) --------------------------------------------
+# Keep only the shipped training corpus (joes-samples/*.jpg), the batch-3 holdout
+# (work/holdout_b3), the review ledger/queues/manifests, logs, and the deployed +
+# rollback models. Everything else is a local copy, cache, or rebuildable from
+# AIOTED-digital-rawdigits + work/review_ledger.csv.
+__pycache__/
+*.pyc
+joes-samples/*/
+joes-samples/*.xlsx
+04_joe_lcd_20x32/
+models/*
+!models/dig-class11_9015_s2.tflite
+!models/dig-class11_9015_s2_q.tflite
+!models/dig-class11_9015_s2.keras
+!models/dig-class11_9002_s2.tflite
+work/*/
+!work/queues/
+!work/holdout_b3/
+!work/_test_build_corpus/
+work/_test_build_corpus/*
+!work/_test_build_corpus/run_tests.py
+!work/_test_build_corpus/culled_seed.txt
+work/*.png
+work/review_ledger.backup-*.csv
+work/roi_drift.csv
+work/b3_frame_stats.csv

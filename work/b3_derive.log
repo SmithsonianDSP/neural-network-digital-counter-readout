@@ -1,0 +1,271 @@
+crops 82795  frames 16559  corrections applied 0
+crops per frame: {5: 16559}
+history CSVs 55  rows in window 19769
+
+frames 16559  strict reading frames 7172  +recovered 6  -> anchor points 8243 kept 5777  corroborated 7101
+fitted reading span: 57687 .. 59424
+skip guard: 132 skipped-value spans in the anchor chain; 6529 frames had their bracket widened
+
+=== history CSV ===
+  rows 19769  matched to frames 16559  (tolerance 30s)
+  CSV-minus-crop stamp offsets (s): {6: 6027, 7: 10326, 8: 133, 9: 51, 10: 19, 26: 2, 27: 1}
+  CSV digit columns == frame model labels: {True: 16559}
+  accepted-value anchor filter: {'out_of_range': 2, 'unconfirmed_jump': 9, 'below_running_max': 22, 'kept': 5122}
+  anchor points by source: {'frame+csv': 4051, 'frame': 3121, 'csv': 1071}
+  kept anchors by source  : {'csv': 1067, 'frame+csv': 3921, 'frame': 789}
+  CSV accepted == fitted reading, frame kind reading: 3925/4060 (96.67%)
+  CSV accepted == fitted reading, frame kind other_screen: 0/2 (0.00%)
+  disagreements (137; stamp, kind, labels, accepted, fitted, passed-anchor-filter):
+    20260816-025402 reading 58029 58029 58020 True
+    20260816-030202 reading 58029 58029 58020 True
+    20260816-030602 reading 58029 58029 58020 True
+    20260816-032202 reading 58029 58029 58021 True
+    20260816-033402 reading 58029 58029 58021 True
+    20260816-035402 reading 58029 58029 58021 True
+    20260816-040202 reading 58029 58029 58021 True
+    20260816-041402 reading 58029 58029 58021 True
+    20260816-221801 reading 58057 58057 58052 True
+    20260816-223801 reading 58057 58057 58053 True
+    20260816-225801 reading 58059 58059 58054 True
+    20260816-231001 reading 58059 58059 58054 True
+    20260816-233801 reading 58059 58059 58054 True
+    20260817-031800 reading 58059 58059 58057 True
+    20260817-033000 reading 58059 58059 58057 True
+    20260818-001359 reading 58096 58096 58095 True
+    20260818-002159 reading 58096 58096 58095 True
+    20260818-005359 reading 58096 58096 58095 True
+    20260818-102158 reading 58106 58106 58105 True
+    20260819-015757 reading 58136 58136 58134 True
+    20260819-021757 reading 58136 58136 58135 True
+    20260819-225355 reading 58179 58179 58170 True
+    20260819-230155 reading 58179 58179 58170 True
+    20260819-231355 reading 58179 58179 58171 True
+    20260820-024155 reading 58179 58179 58173 True
+
+frame kinds: {'uncertain': 14, 'test0': 3586, 'test8': 3630, 'reading': 7189, 'dash': 2140}
+  dash      day=773    transition=326    flash=1041   
+  reading   day=2447   transition=992    flash=3750   
+  test0     day=1173   transition=512    flash=1901   
+  test8     day=1174   transition=530    flash=1926   
+  uncertain day=2      transition=2      flash=10     
+
+=== crop status x position ===
+  pos           agree   agree_soft     disagree    ambiguous    uncertain  underivable dash_unverif
+  dig2          16436            0           21            0          102            0            0
+  dig3          14397           30         1997           33          102            0            0
+  dig4          15971          462           23            1          102            0            0
+  dig5          10488         1909         1311          609          102            0         2140
+  dig6           7431         3558         2169         1159          102            0         2140
+  ALL           64723         5959         5521         1802          510            0         4280
+
+needs human eyes: 12113 of 82795 (14.6%)
+
+=== review tiers ===
+  A_conflict: 5521
+  B_ambiguous: 1802
+  C_uncertain: 510
+  D_dashdigit: 4280
+  E_confirm: 70682
+
+=== light calibration (frame brightness = median of per-crop median luma) ===
+                   n      p0      p1      p5     p25     p50     p75     p95     p99   p99.5    p100
+  night 01-04   2758    73.0    73.8    74.8    76.2    77.1    77.9    79.2    79.9    80.1    80.8
+  day 11-14     2759    82.0    87.9    97.2   121.5   137.1   145.3   154.0   158.1   159.4   168.8
+    bin  night    day    all  pinned   err%
+     72    504      0   1562    6987  13.78
+     76   2237      0   6827   24550  16.42
+     80     17      8   1101    3979   6.18
+     84      0     23    566    2135   4.68
+     88      0     27    446    1755   2.62
+     92      0     57    488    2064   1.60
+     96      0     64    395    1674   0.36
+    100      0    123    407    1661   0.30
+    104      0     98    277    1027   0.10
+    108      0     74    212     864   0.23
+    112      0    111    241     983   0.00
+    116      0     69    176     730   0.14
+    120      0    106    224     914   0.22
+    124      0     98    234     962   0.31
+    128      0    153    324    1411   0.00
+    132      0    273    509    2291   0.13
+    136      0    318    630    2736   0.11
+    140      0    351    590    2422   0.62
+    144      0    319    523    2028   1.48
+    148      0    250    434    1591   1.13
+    152      0    165    270     787   0.13
+    156      0     60    105     260   0.00
+    160      0     11     17      13   0.00
+    168      0      1      1       0       
+  suggested: flash <= 80.8 (max of night 01-04);  day >= 97.2 (day 11-14 p5; cross-check against the err% floor above)
+  in use   : flash <= 81.0;  day >= 96.0
+
+--- frames per hour x brightness bucket, 20260816..20260820 (1800 frames)  [day/transition/flash | old hour rule]
+  00     0    0   75   | flash
+  01     0    0   75   | flash
+  02     0    0   75   | flash
+  03     0    0   75   | flash
+  04     0    0   75   | flash
+  05     0    0   75   | flash
+  06     0   33   42   | transition
+  07    38   37    0   | day
+  08    74    1    0   | day
+  09    72    3    0   | day
+  10    75    0    0   | day
+  11    75    0    0   | day
+  12    75    0    0   | day
+  13    75    0    0   | day
+  14    75    0    0   | day
+  15    69    6    0   | day
+  16    48   19    8   | day
+  17    10   51   14   | day
+  18     0   66    9   | day
+  19     0   12   63   | transition
+  20     0    0   75   | flash
+  21     0    0   75   | flash
+  22     0    0   75   | flash
+  23     0    0   75   | flash
+
+--- frames per hour x brightness bucket, 20260925..20260929 (1800 frames)  [day/transition/flash | old hour rule]
+  00     0    0   75   | flash
+  01     0    0   75   | flash
+  02     0    0   75   | flash
+  03     0    0   75   | flash
+  04     0    0   75   | flash
+  05     0    0   75   | flash
+  06     0    5   70   | transition
+  07     9   52   14   | day
+  08    62   13    0   | day
+  09    75    0    0   | day
+  10    75    0    0   | day
+  11    75    0    0   | day
+  12    75    0    0   | day
+  13    75    0    0   | day
+  14    75    0    0   | day
+  15    65   10    0   | day
+  16    36   39    0   | day
+  17     0   74    1   | day
+  18     0   24   51   | day
+  19     0    1   74   | transition
+  20     0    3   72   | flash
+  21     0    1   74   | flash
+  22     0    0   75   | flash
+  23     0    0   75   | flash
+
+  brightness bucket x old hour bucket:
+    day        day=5569   transition=0      flash=0      
+    transition day=2222   transition=136    flash=4      
+    flash      day=516    transition=1233   flash=6879   
+
+=== supply: PINNED derived-truth crops on reading screens, (pos, truth) x bucket  (soft = agree_soft/ambiguous: truth not pinned) ===
+  pos    truth         day  transition       flash  pinned   soft
+  dig2       5        2446         976        3679    7101      0
+  dig3       7          34           0           0      34      1
+  dig3       8        1506         552        2178    4236      9
+  dig3       9         905         418        1445    2768     53
+  dig4       0         338         133         505     976     58
+  dig4       1         331         157         460     948    151
+  dig4       2         425         135         589    1149     10
+  dig4       3         450         150         540    1140     48
+  dig4       4         146          76         286     508     10
+  dig4       5         130          44         244     418      6
+  dig4       6         126          62         170     358      1
+  dig4       7         119          42         178     339     80
+  dig4       8         161          61         155     377     80
+  dig4       9         197          62         166     425     19
+  dig5       0         223         123         158     504    248
+  dig5       1         198          63         245     506    240
+  dig5       2         226          47          99     372    215
+  dig5       3         173          71         217     461    253
+  dig5       4         251          55         264     570    196
+  dig5       5         207          86         202     495    212
+  dig5       6         224          59         110     393    235
+  dig5       7         158         110         223     491    234
+  dig5       8         188          69          96     353    324
+  dig5       9         194          66         178     438    361
+  dig6       0          74          30          65     169    617
+  dig6       1         169          62          87     318    390
+  dig6       2         161          70         147     378    278
+  dig6       3         176          67          96     339    249
+  dig6       4          95          27          93     215    540
+  dig6       5          95          20          73     188    108
+  dig6       6         103          19         116     238   1041
+  dig6       7         196          40          31     267    401
+  dig6       8         105          25          11     141    600
+  dig6       9          89          21          21     131    493
+
+=== supply: PINNED derived-truth crops on test screens, (pos, truth) x bucket  (soft = agree_soft/ambiguous: truth not pinned) ===
+  pos    truth         day  transition       flash  pinned   soft
+  dig2       0        1173         512        1901    3586      0
+  dig2       8        1174         530        1926    3630      0
+  dig2       N         773         326        1041    2140      0
+  dig3       0        1173         512        1901    3586      0
+  dig3       8        1174         530        1926    3630      0
+  dig3       N         773         326        1041    2140      0
+  dig4       0        1173         512        1901    3586      0
+  dig4       8        1174         530        1926    3630      0
+  dig4       N         773         326        1041    2140      0
+  dig5       0        1173         512        1901    3586      0
+  dig5       8        1174         530        1926    3630      0
+  dig6       0        1173         512        1901    3586      0
+  dig6       8        1174         530        1926    3630      0
+
+=== model label != derived truth: 7323 crops ===
+  test     disagree   flash       3688
+  reading  ambiguous  flash       1711
+  reading  disagree   flash       1348
+  test     disagree   transition  200
+  reading  disagree   transition  191
+  test     disagree   day         65
+  reading  ambiguous  transition  59
+  reading  ambiguous  day         32
+  reading  disagree   day         29
+  top 30 cells (pos, truth->model, bucket): n  [disagree/ambiguous]
+    dig3 9->8   flash        1175   [1142/33]
+    dig5 8->0   flash        1114   [996/118]
+    dig6 8->6   flash         880   [812/68]
+    dig6 0->9   flash         738   [617/121]
+    dig3 0->8   flash         637   [637/0]
+    dig6 8->9   flash         378   [378/0]
+    dig6 8->0   flash         287   [219/68]
+    dig5 9->4   flash         215   [40/175]
+    dig5 8->0   transition    174   [160/14]
+    dig3 9->8   transition    159   [159/0]
+    dig5 7->3   flash         108   [37/71]
+    dig6 7->0   flash         105   [3/102]
+    dig6 9->6   flash          60   [0/60]
+    dig6 6->0   flash          55   [0/55]
+    dig5 3->7   flash          46   [22/24]
+    dig6 1->9   flash          45   [4/41]
+    dig3 0->8   transition     44   [44/0]
+    dig5 8->3   flash          35   [0/35]
+    dig6 9->5   flash          33   [0/33]
+    dig5 9->0   flash          33   [0/33]
+    dig6 9->0   flash          32   [1/31]
+    dig6 6->5   flash          31   [4/27]
+    dig6 3->9   flash          31   [16/15]
+    dig6 8->0   day            30   [28/2]
+    dig6 4->2   flash          29   [0/29]
+    dig6 1->4   flash          27   [5/22]
+    dig6 3->8   flash          25   [1/24]
+    dig6 4->1   flash          24   [0/24]
+    dig5 6->0   flash          20   [0/20]
+    dig6 0->8   flash          20   [1/19]
+
+=== dash screen: dig5/dig6 model labels by bucket ===
+  dig5 day         0=772 1=1
+  dig5 transition  0=326
+  dig5 flash       0=1040 N=1
+  dig6 day         9=420 8=343 4=8 0=2
+  dig6 transition  8=162 9=155 0=8 5=1
+  dig6 flash       9=658 0=129 5=118 6=74 8=59 4=3
+  dig5dig6 day         09=420 08=342 04=8 00=2 18=1
+  dig5dig6 transition  08=162 09=155 00=8 05=1
+  dig5dig6 flash       09=658 00=129 05=118 06=74 08=59 04=2 N4=1
+
+=== test8 screen: dig5/dig6 model labels by bucket ===
+  day         88888=1124 88880=26 88886=14 88808=5 88800=2 8N808=2 88809=1
+  transition  88888=387 88808=137 88809=3 88608=1 88648=1 88800=1
+  flash       88806=434 88886=371 88889=368 88808=360 88800=190 88888=156 88880=29 88809=10
+
+per-crop derivation -> work\b3_derive.csv
+rollover sheet (2 rollovers) -> work\b3_rollover_check.png

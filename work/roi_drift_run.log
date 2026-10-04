@@ -1,0 +1,127 @@
+indexed 82795 crops, 16559 frames in 1.4s
+templates: 5 x t8, 32 per-(pos,label) templates (dropped 0 with self-score < 0.35); reference jitter (sd of dx/dy within the reference crops after alignment): dig2=1.5/1.3, dig3=1.5/1.1, dig4=1.5/1.1, dig5=1.7/1.1, dig6=1.9/1.2
+processing 82795 crops (16559 frames)
+82795 crops, 82795 cached, 0 to process on 20 workers
+wrote C:\Users\josep\source\repos\AIOTED-digital\work\roi_drift.csv
+
+=== thresholds (chosen from the data) ===
+baseline period for the shift envelope: 20260815..20260828 (88888 crops)
+low-score threshold : score < 0.50  (1st percentile of all 88888 crop scores, rounded down)
+shift threshold     : |dx| > 5.5 px or |dy| > 6.0 px  (99.5th percentile of |shift| of the 88888 crops in the baseline period, worst position, rounded up to 0.5 px)
+disagree threshold  : crop vs frame-expected shift > 3.0 px  (median + 6 robust sigma [sigma=0.43] of the deviation over reliable crops, floor 2 px)
+reliable crops (own estimate usable): 72127/82795
+note: a MAD z-score on the 88888 series was NOT used for the shift flag -- the baseline wobble is bimodal (day vs flash-lit night, a few px apart), so a MAD sigma of ~1 px would flag normal daytime wobble.
+
+=== 88888 frames: median dx/dy (px) per week -- all hours ===
+week from     dig2 dx/dy    dig3 dx/dy    dig4 dx/dy    dig5 dx/dy    dig6 dx/dy    n(frames)
+  08-15      -2.7/  1.4   -2.2/  0.2   -2.5/ -0.1   -2.4/ -0.3   -3.0/ -0.7    527
+  08-22      -3.0/  3.2   -2.6/  1.7   -2.7/  1.5   -2.7/  1.3   -3.0/  1.8    554
+  08-29      -2.1/ -1.8   -1.7/ -3.7   -1.6/ -5.0   -1.6/ -5.8   -0.9/ -5.8    542
+  09-05      -7.1/ -3.7   -8.0/ -4.6   -9.1/ -4.8   -9.0/ -5.7  -11.2/ -5.1    547
+  09-12      -7.4/ -2.5   -8.1/ -3.2   -9.5/ -3.2   -9.6/ -3.5  -11.9/ -3.1    550
+  09-19      -7.3/ -2.9   -8.0/ -3.6   -9.3/ -3.3   -9.2/ -3.6  -11.3/ -3.0    552
+  09-26      -8.0/ -3.7   -8.8/ -4.5  -10.2/ -4.0   -9.9/ -4.3  -11.6/ -3.7    352
+
+=== 88888 frames: median dx/dy (px) per week -- night, hours 0-5 (stable flash lighting) ===
+week from     dig2 dx/dy    dig3 dx/dy    dig4 dx/dy    dig5 dx/dy    dig6 dx/dy    n(frames)
+  08-15      -3.0/  1.4   -2.4/ -0.2   -2.7/ -0.3   -2.5/ -1.0   -3.1/ -1.9    119
+  08-22      -3.5/  3.9   -3.1/  1.8   -3.2/  1.3   -3.2/  1.0   -3.4/  1.4    142
+  08-29      -2.3/ -1.8   -2.0/ -3.8   -1.8/ -5.1   -1.7/ -6.0   -1.0/ -5.9    133
+  09-05      -6.1/ -3.8   -6.8/ -4.8   -7.8/ -4.9   -7.6/ -6.5   -9.8/ -5.9    139
+  09-12      -7.1/ -2.6   -7.8/ -3.6   -9.2/ -3.6   -9.3/ -4.0  -11.3/ -3.6    137
+  09-19      -6.6/ -2.9   -7.2/ -3.9   -8.5/ -3.5   -8.4/ -3.7  -10.5/ -3.3    141
+  09-26      -7.2/ -3.9   -7.8/ -4.8   -9.0/ -4.5   -8.9/ -4.6  -11.0/ -4.1     97
+
+=== 88888 frames: median dx/dy (px) per week -- day, hours 9-16 ===
+week from     dig2 dx/dy    dig3 dx/dy    dig4 dx/dy    dig5 dx/dy    dig6 dx/dy    n(frames)
+  08-15      -0.2/  0.9   -0.3/  0.7   -0.3/  0.7   -0.1/  0.7   -0.3/  0.7    185
+  08-22       0.2/  2.4    0.1/  1.6    0.1/  1.6    0.2/  1.6    0.4/  2.1    184
+  08-29      -0.6/ -1.7   -0.6/ -3.3   -0.4/ -4.1   -0.3/ -5.4   -0.3/ -5.1    177
+  09-05      -8.0/ -3.7   -9.2/ -4.4  -10.6/ -4.7  -10.1/ -5.5  -12.3/ -4.7    182
+  09-12      -9.1/ -1.9  -10.4/ -2.6  -11.9/ -2.3  -11.8/ -2.7  -14.3/ -2.1    185
+  09-19      -9.0/ -2.8  -10.3/ -3.2  -11.8/ -3.1  -11.4/ -3.6  -13.5/ -2.8    184
+  09-26      -9.2/ -3.6  -10.4/ -3.9  -11.7/ -3.8  -11.3/ -4.2  -13.3/ -3.0    112
+
+=== step changes / trends in the nightly (hours 0-5) 88888 series (pooled median of the 5 positions) ===
+ night       dx     dy    d(dx)  d(dy)   [consecutive-night changes > 1 px]
+ 20260817    -1.9   -2.4    +0.9   -2.9
+ 20260818    -2.7   -0.9    -0.8   +1.5
+ 20260824    -2.6    0.1    +1.1   -0.5
+ 20260825    -2.9    2.0    -0.3   +1.9
+ 20260828    -3.0    1.3    +0.4   -1.0
+ 20260901    -1.7   -5.1    +0.9   -4.8
+ 20260902    -1.7   -6.2    -0.0   -1.1
+ 20260903     0.1   -7.2    +1.8   -1.0
+ 20260904    -0.6   -8.3    -0.6   -1.1
+ 20260905    -4.1   -3.6    -3.5   +4.7
+ 20260906   -10.5   -5.4    -6.4   -1.8
+ 20260907    -8.6   -5.9    +1.9   -0.5
+ 20260914    -9.5   -3.7    -1.7   +0.7
+ 20260926    -8.8   -5.2    -0.5   -2.0
+ first-7-night level dx -2.7 dy -0.2;  last-7-night level dx -9.1 dy -3.8
+  dig2: night dx/dy first-7   -3.1/  1.5 -> last-7   -7.1/ -3.6   net  -4.1/ -5.1 px
+  dig3: night dx/dy first-7   -2.6/ -0.2 -> last-7   -7.8/ -4.6   net  -5.1/ -4.4 px
+  dig4: night dx/dy first-7   -2.7/ -0.2 -> last-7   -9.1/ -3.9   net  -6.4/ -3.7 px
+  dig5: night dx/dy first-7   -2.7/ -0.9 -> last-7   -9.1/ -3.8   net  -6.4/ -2.9 px
+  dig6: night dx/dy first-7   -3.3/ -1.3 -> last-7  -11.0/ -3.6   net  -7.7/ -2.3 px
+  dx: first night with a >1 px departure from the first-week level (3 nights sustained): 20260903; beyond the flag envelope: 20260914
+  dy: first night with a >1 px departure from the first-week level (3 nights sustained): 20260825; beyond the flag envelope: None
+  linear trend of nightly medians from 09-06 on: dx -0.20 px/week, dy +0.34 px/week
+
+=== flagged crops by day x position (all reasons; advisory) ===
+day          dig2  dig3  dig4  dig5  dig6   total  /crops
+20260807       1     2     0     1     1       5  /10
+20260815       0     0     0     0     1       1  /1170
+20260816       0     0     0     0    14      14  /1800
+20260817       2     1     1     2     2       8  /1800
+20260818       1     0     0     0     0       1  /1800
+20260819      14     0     0     0     3      17  /1800
+20260820       6     0     0     3     0       9  /1800
+20260821       0     0     0     0     3       3  /1800
+20260822       0     0     3     5     0       8  /1800
+20260823       0     0     0     4     0       4  /1800
+20260824       0     0     0     1     1       2  /1800
+20260825       1     1     1     1     1       5  /1800
+20260826       3     2     2     3     3      13  /1800
+20260827       4     4     3     9     9      29  /1800
+20260828       0     0     0     8     3      11  /1800
+20260829       0     0     0     0     1       1  /1800
+20260830       0     0     0     0     1       1  /1800
+20260831       1     1     1    92    88     183  /1800
+20260901       0    61   188   322   321     892  /1800
+20260902      81   263   297   332   330    1303  /1660
+20260903     188   311   311   360   360    1530  /1800
+20260904     169   226   241   295   332    1263  /1800
+20260905     136   209   232   283   328    1188  /1800
+20260906     309   309   309   360   360    1647  /1800
+20260907     314   314   314   360   360    1662  /1800
+20260908     313   313   313   360   360    1659  /1800
+20260909     222   316   316   360   360    1574  /1800
+20260910     294   308   308   359   359    1628  /1795
+20260911     291   316   316   360   360    1643  /1800
+20260912     270   313   313   360   360    1616  /1800
+20260913     316   317   319   360   360    1672  /1800
+20260914     313   313   313   360   360    1659  /1800
+20260915     313   313   313   360   360    1659  /1800
+20260916     313   313   313   360   360    1659  /1800
+20260917     313   313   313   360   360    1659  /1800
+20260918     314   312   314   360   360    1660  /1800
+20260919     313   309   313   360   360    1655  /1800
+20260920     313   313   313   360   360    1659  /1800
+20260921     314   313   313   360   360    1660  /1800
+20260922     312   312   312   360   360    1656  /1800
+20260923     312   311   312   360   360    1655  /1800
+20260924     307   306   307   360   360    1640  /1800
+20260925     312   312   312   360   360    1656  /1800
+20260926     316   316   316   360   360    1668  /1800
+20260927     317   316   316   360   360    1669  /1800
+20260928     311   310   310   360   360    1651  /1800
+20260929     312   312   312   360   360    1656  /1800
+20260930     137   130   130   152   152     701  /760
+total flagged: 46814 / 82795 crops (56.5%)
+by reason (a crop can carry several): shift=43442, frame_shift=3122, disagree=204, low_score=1024, edge=316, unreadable=0
+wrote C:\Users\josep\source\repos\AIOTED-digital\work\roi_drift_88888.png
+wrote C:\Users\josep\source\repos\AIOTED-digital\work\roi_drift_all.png
+wrote C:\Users\josep\source\repos\AIOTED-digital\work\roi_drift_flagged_sample.png (20 crops; left = crop with template glyph outline: red at zero shift, green at estimated shift; right = template)
+
+done in 8s

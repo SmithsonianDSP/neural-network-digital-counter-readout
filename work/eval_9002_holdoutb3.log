@@ -1,0 +1,97 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 790 images from work/holdout_b3 (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9002_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 717/790 = 90.76%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0    134    0    0    0    0    0    0    0    7    4    0    145
+       1      0   39    0    0    2    0    0    0    0    2    0     43
+       2      0    0   40    0    0    0    0    0    0    0    0     40
+       3      0    0    0   36    0    0    0    2    2    0    0     40
+       4      0    0    0    0   10    0    0    0    0    1    0     11
+       5      0    0    0    0    0  108    8    0    0    0    0    116
+       6      0    0    0    0    0    0   30    0    0    1    0     31
+       7      3    0    0    3    0    0    0   13    1    0    0     20
+       8      6    0    0    0    0    0    7    0  161    3    0    177
+       9      0    0    0    0    2    1    3    0   15   83    0    104
+       N      0    0    0    0    0    0    0    0    0    0   63     63
+     tot    143   39   40   39   14  109   48   15  186   94   63    790
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  9->8 x15
+  5->6 x8
+  8->6 x7
+  0->8 x7
+  8->0 x6
+  0->9 x4
+  9->6 x3
+  8->9 x3
+  7->3 x3
+  7->0 x3
+  9->4 x2
+  3->8 x2
+  3->7 x2
+  1->9 x2
+  1->4 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2          100.00%    158
+dig3           91.77%    158
+dig4          100.00%    158
+dig5           92.41%    158
+dig6           69.62%    158
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            91.25%    480
+test8          89.09%    110
+zeros          89.47%     95
+blank09        91.43%    105
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=60.6         82.58%    264
+mid <=85.9         95.06%    263
+high >85.9         94.68%    263
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=717   mean=0.9540 median=0.9995 p10=0.8324
+  wrong    n=73    mean=0.6148 median=0.5733 p10=0.3462
+  mean P(N) over all images = 0.0809
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+9_main_dig6_20260916-140534.jpg                      9     8  0.9998
+5_main_dig6_20260923-110922.jpg                      5     6  0.9996
+9_main_dig6_20260923-140922.jpg                      9     8  0.9950
+0_main_dig6_20260818-054558.jpg                      0     9  0.9567
+9_main_dig6_20260923-120522.jpg                      9     8  0.9481
+9_main_dig6_20260916-180534.jpg                      9     8  0.9443
+0_main_dig6_20260825-015346.jpg                      0     9  0.9198
+8_main_dig6_20260818-221357.jpg                      8     9  0.9175
+9_main_dig6_20260929-120239.jpg                      9     8  0.9145
+8_main_dig6_20260818-233357.jpg                      8     9  0.8919
+0_main_dig3_20260818-054558.jpg                      0     8  0.8726
+0_main_dig3_20260818-071358.jpg                      0     8  0.8704
+5_main_dig6_20260909-142319.jpg                      5     6  0.8663
+0_main_dig6_20260825-232944.jpg                      0     9  0.8622
+5_main_dig6_20260916-184134.jpg                      5     6  0.8417
+0_main_dig6_20260825-002546.jpg                      0     9  0.8410
+8_main_dig6_20260929-230238.jpg                      8     6  0.8194
+9_main_dig6_20260923-072522.jpg                      9     8  0.8136
+5_main_dig6_20260916-190934.jpg                      5     6  0.8126
+5_main_dig6_20260929-065839.jpg                      5     6  0.8026
+
+wrote work/eval_9002_holdoutb3.csv (790 rows)

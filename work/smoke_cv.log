@@ -1,0 +1,163 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1785523468.909988   26336 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1785523471.901443   26336 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+dig-class11 graph: 88023 params
+upstream 03_data_resize_all-use_for_training: 1290 images
+user     04_joe_lcd_20x32: 228 images (49 frames)
+
+fold layout (49 user frames, k=5):
+  fold         kwh    test8    zeros  blank09   frames
+  0              6        2        1        1       10
+  1              5        2        2        1       10
+  2              5        2        2        1       10
+  3              5        2        1        2       10
+  4              5        2        1        1        9
+
+=== fold 1/5: train 2030 (1290 upstream + 185 user x4), val 43 user images ===
+Epoch 1/3
+508/508 - 3s - 6ms/step - accuracy: 0.2128 - loss: 2.2912 - val_accuracy: 0.3953 - val_loss: 2.0921
+Epoch 2/3
+508/508 - 2s - 4ms/step - accuracy: 0.3749 - loss: 1.8958 - val_accuracy: 0.6977 - val_loss: 1.0706
+Epoch 3/3
+508/508 - 2s - 4ms/step - accuracy: 0.5217 - loss: 1.4469 - val_accuracy: 0.8605 - val_loss: 0.5533
+Restoring model weights from the end of the best epoch: 3.
+WARNING:tensorflow:From C:\Users\josep\AppData\Local\Programs\Python\Python312\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+[fold1] ran 3 epochs in 8s (2.54 s/ep), best epoch 3 (val_loss 0.55330, val_acc 0.8605)
+
+=== fold 2/5: train 2018 (1290 upstream + 182 user x4), val 46 user images ===
+Epoch 1/3
+505/505 - 3s - 6ms/step - accuracy: 0.2086 - loss: 2.3166 - val_accuracy: 0.0652 - val_loss: 2.2961
+Epoch 2/3
+505/505 - 2s - 4ms/step - accuracy: 0.2403 - loss: 2.1719 - val_accuracy: 0.7174 - val_loss: 1.2445
+Epoch 3/3
+505/505 - 2s - 4ms/step - accuracy: 0.4559 - loss: 1.6445 - val_accuracy: 0.8043 - val_loss: 0.6733
+Restoring model weights from the end of the best epoch: 3.
+[fold2] ran 3 epochs in 7s (2.45 s/ep), best epoch 3 (val_loss 0.67332, val_acc 0.8043)
+
+=== fold 3/5: train 2002 (1290 upstream + 178 user x4), val 50 user images ===
+Epoch 1/3
+501/501 - 3s - 6ms/step - accuracy: 0.2113 - loss: 2.3188 - val_accuracy: 0.0600 - val_loss: 2.2818
+Epoch 2/3
+501/501 - 2s - 4ms/step - accuracy: 0.2677 - loss: 2.1096 - val_accuracy: 0.5400 - val_loss: 1.6348
+Epoch 3/3
+501/501 - 2s - 4ms/step - accuracy: 0.4635 - loss: 1.6746 - val_accuracy: 0.6400 - val_loss: 0.9981
+Restoring model weights from the end of the best epoch: 3.
+WARNING:tensorflow:5 out of the last 5 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000019BA8ABDEE0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:6 out of the last 6 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x0000019BA8ABDEE0> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+[fold3] ran 3 epochs in 7s (2.44 s/ep), best epoch 3 (val_loss 0.99815, val_acc 0.6400)
+
+=== fold 4/5: train 2006 (1290 upstream + 179 user x4), val 49 user images ===
+Epoch 1/3
+502/502 - 3s - 6ms/step - accuracy: 0.1989 - loss: 2.3117 - val_accuracy: 0.1224 - val_loss: 2.2723
+Epoch 2/3
+502/502 - 2s - 4ms/step - accuracy: 0.3390 - loss: 1.9559 - val_accuracy: 0.6122 - val_loss: 1.1136
+Epoch 3/3
+502/502 - 2s - 4ms/step - accuracy: 0.5234 - loss: 1.4336 - val_accuracy: 0.7755 - val_loss: 0.6205
+Restoring model weights from the end of the best epoch: 3.
+[fold4] ran 3 epochs in 7s (2.49 s/ep), best epoch 3 (val_loss 0.62055, val_acc 0.7755)
+
+=== fold 5/5: train 2042 (1290 upstream + 188 user x4), val 40 user images ===
+Epoch 1/3
+511/511 - 3s - 6ms/step - accuracy: 0.2111 - loss: 2.2997 - val_accuracy: 0.1250 - val_loss: 2.2728
+Epoch 2/3
+511/511 - 2s - 4ms/step - accuracy: 0.3546 - loss: 1.9056 - val_accuracy: 0.6750 - val_loss: 1.2715
+Epoch 3/3
+511/511 - 2s - 4ms/step - accuracy: 0.5514 - loss: 1.4185 - val_accuracy: 0.9250 - val_loss: 0.6047
+Restoring model weights from the end of the best epoch: 3.
+[fold5] ran 3 epochs in 7s (2.48 s/ep), best epoch 3 (val_loss 0.60475, val_acc 0.9250)
+
+MODEL: OUT-OF-FOLD (grouped 5-fold CV over user frames)
+------------------------------------------------------------
+Overall accuracy: 181/228 = 79.39%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0     23    1    0    0    1    0    0    1   12    0    0     38
+       1      0    0    0    0    0    0    0    3    0    0    0      3
+       2      0    0    8    0    0    0    0    1    0    0    0      9
+       3      0    0    0    5    0    0    0    3    0    0    0      8
+       4      0    0    0    0   40    0    0    0    0    0    0     40
+       5      0    0    0    0    0   33    0    0    0    0    0     33
+       6      0    0    0    0    0    1    0    0    0    0    0      1
+       7      0    0    0    1    0    0    0   24    0    0    2     27
+       8     12    0    0    0    2    0    0    0   28    0    0     42
+       9      0    0    0    0    7    0    0    0    0    2    0      9
+       N      0    0    0    0    0    0    0    0    0    0   18     18
+     tot     35    1    8    6   50   34    0   32   40    2   20    228
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  8->0 x12
+  0->8 x12
+  9->4 x7
+  3->7 x3
+  1->7 x3
+  8->4 x2
+  7->N x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2           90.91%     44
+dig3           78.57%     42
+dig4           91.84%     49
+dig5           72.92%     48
+dig6           62.22%     45
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            88.37%    129
+test8          68.29%     41
+zeros          53.57%     28
+blank09        80.00%     30
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=50.0         88.16%     76
+mid <=64.0         81.58%     76
+high >64.0         68.42%     76
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=181   mean=0.6598 median=0.6279 p10=0.3984
+  wrong    n=47    mean=0.4724 median=0.4160 p10=0.2723
+  mean P(N) over all images = 0.0883
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+9_main_dig6_20260731-085725.jpg                      9     4  0.8433
+8_main_dig6_20260731-103448.jpg                      8     0  0.8075
+9_main_dig6_20260731-084555.jpg                      9     4  0.7886
+9_main_dig6_20260730-170230.jpg                      9     4  0.7643
+8_main_dig5_20260731-103448.jpg                      8     0  0.7534
+8_main_dig4_20260731-103448.jpg                      8     0  0.7381
+8_main_dig2_20260731-103448.jpg                      8     0  0.7310
+9_main_dig6_20260731-120005.jpg                      9     4  0.7040
+3_main_dig5_20260731-060433.jpg                      3     7  0.6663
+8_main_dig6_20260731-061603.jpg                      8     0  0.6368
+9_main_dig6_20260731-071805.jpg                      9     4  0.6165
+9_main_dig6_20260730-162800.jpg                      9     4  0.6098
+2_main_dig5_20260730-192033.jpg                      2     7  0.5535
+8_main_dig5_20260731-080405.jpg                      8     0  0.5363
+8_main_dig5_20260731-113705.jpg                      8     0  0.5260
+0_main_dig3_20260731-090855.jpg                      0     8  0.5246
+0_main_dig3_20260730-163930.jpg                      0     8  0.5196
+0_main_dig2_20260730-163930.jpg                      0     8  0.5066
+8_main_dig3_20260731-103448.jpg                      8     0  0.4923
+8_main_dig5_20260731-081535.jpg                      8     0  0.4720
+
+wrote work/smoke_oof.csv (228 rows)
+
+==============================================================
+per-fold best epoch: 3, 3, 3, 3, 3
+median best epoch = 3  ->  E* (round up to 25) = 25
+
+  python tools/train_dig_class11.py --final --epochs 25
+==============================================================

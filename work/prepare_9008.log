@@ -1,0 +1,20 @@
+--force given: clearing existing C:\Users\josep\source\repos\AIOTED-digital\04_joe_lcd_20x32
+
+Wrote 6809 files to C:\Users\josep\source\repos\AIOTED-digital\04_joe_lcd_20x32
+
+Per-label counts
+------------------------------------------------------------
+    0:  843
+    1:  531
+    2:  533
+    3:  534
+    4:  516
+    5:  716
+    6:  434
+    7:  692
+    8:  884
+    9:  713
+    N:  413
+
+Verify: source samples = 6809, files written = 6809, files on disk = 6809
+OK: counts match.

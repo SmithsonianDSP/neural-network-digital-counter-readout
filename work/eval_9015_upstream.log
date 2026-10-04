@@ -1,0 +1,119 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 1290 images from 03_data_resize_all-use_for_training (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9015_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 1152/1290 = 89.30%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0     99    1    1    2    0    0    0    1    2    0    0    106
+       1      5   96    2    1    1    0    0    4    0    0    0    109
+       2      0    0   94    1    0    0    0    0    0    0    1     96
+       3      0    0    1   83    0    1    0    0    0    1    3     89
+       4      1    0    2    2   84    2    1    0    1    0    2     95
+       5      0    0    0    1    0   81    3    0    0    0    1     86
+       6      0    0    0    1    0    4   76    0    5    0    4     90
+       7      3    3   12    0    0    0    0   64    0    0    0     82
+       8      3    0    2    4    1    0    3    0   73    0    0     86
+       9      1    0    4    4    0    4    0    0    2   65    2     82
+       N      5    3    6    4    2    4    3    1    1    3  337    369
+     tot    117  103  124  103   88   96   86   70   84   69  350   1290
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  7->2 x12
+  N->2 x6
+  N->0 x5
+  6->8 x5
+  1->0 x5
+  N->5 x4
+  N->3 x4
+  9->5 x4
+  9->3 x4
+  9->2 x4
+  8->3 x4
+  6->N x4
+  6->5 x4
+  1->7 x4
+  N->9 x3
+  N->6 x3
+  N->1 x3
+  8->6 x3
+  8->0 x3
+  7->1 x3
+  7->0 x3
+  5->6 x3
+  3->N x3
+  N->4 x2
+  9->N x2
+  9->8 x2
+  8->2 x2
+  4->N x2
+  4->5 x2
+  4->3 x2
+  4->2 x2
+  1->2 x2
+  0->8 x2
+  0->3 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig1           91.30%     23
+dig2           93.10%     29
+dig3           92.86%     28
+dig4           84.21%     19
+dig5           80.49%     41
+dig6           91.11%     45
+dig7           89.47%     19
+dig8          100.00%      4
+dig9           83.33%      6
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            90.80%    163
+test8          84.62%     13
+zeros          93.33%     15
+blank09        68.00%     25
+(unknown)      89.57%   1074
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=100.3        86.51%    430
+mid <=146.9        90.00%    430
+high >146.9        91.40%    430
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=1152  mean=0.9699 median=1.0000 p10=0.9372
+  wrong    n=138   mean=0.7646 median=0.8310 p10=0.3794
+  mean P(N) over all images = 0.2703
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+4_2f57f9affee181673b17202a6f473f36.jpg               4     5  1.0000
+NaN_7_dig3_20210704-115600.jpg                       N     0  1.0000
+6_6_ROI2_20210605-044640a.jpg                        6     5  1.0000
+NaN_D8_2020-08-24_18-14-54.jpg                       N     0  1.0000
+1.0_bdd00c3dc3c29b2124b8b837afef20d9.jpg             1     0  1.0000
+7_arbitrary_20220227.jpg                             7     2  1.0000
+5_dig5b_19700109-004128.jpg                          5     N  1.0000
+9_9_black.jpg                                        9     2  1.0000
+7_7.jpg                                              7     1  1.0000
+7_7_digit5_20210412-214553.jpg                       7     2  0.9999
+4_3403.jpg                                           4     2  0.9992
+1_a1.jpg                                             1     0  0.9992
+NaN_20200912-000236_ROI5.jpg                         N     6  0.9989
+8_3_digit6_20210629-124201.jpg                       8     3  0.9985
+1_1_red.jpg                                          1     0  0.9976
+8_3_digit7_20210629-094726.jpg                       8     3  0.9974
+NaN_1_digit3_20210712-072502.jpg                     N     0  0.9974
+9_10_ROI6_20210218-110048.jpg                        9     3  0.9962
+7_arbitrary.jpg                                      7     2  0.9957
+7.0_main_dig2_20240316-102123.jpg                    7     0  0.9951

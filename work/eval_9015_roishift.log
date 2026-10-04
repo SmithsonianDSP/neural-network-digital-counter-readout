@@ -1,0 +1,321 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+loaded 6793 images from joes-samples (resize=nearest)
+model backend: ai_edge_litert
+
+MODEL: models/dig-class11_9015_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 6713/6793 = 98.82%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0    836    0    0    0    0    0    0    0    3    2    0    841
+       1      2  529    0    0    0    0    0    0    0    0    0    531
+       2      0    0  532    1    0    0    0    0    0    0    0    533
+       3      0    0    2  521    1    0    0   10    0    0    0    534
+       4      0    0    0    0  517    0    0    0    0    0    0    517
+       5      1    0    0    0    0  712    0    0    0    3    0    716
+       6      0    0    0    0    0    3  417    0    3    0    0    423
+       7      1    0    0    2    0    0    0  688    0    1    0    692
+       8     28    0    0    0    0    0    0    0  848    4    0    880
+       9      1    0    0    0    2    0    0    1    4  705    0    713
+       N      0    0    0    0    0    0    0    0    4    1  408    413
+     tot    869  529  534  524  520  715  417  699  862  716  408   6793
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  8->0 x28
+  3->7 x10
+  N->8 x4
+  9->8 x4
+  8->9 x4
+  6->8 x3
+  6->5 x3
+  5->9 x3
+  0->8 x3
+  9->4 x2
+  7->3 x2
+  3->2 x2
+  1->0 x2
+  0->9 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2           99.55%    667
+dig3           99.40%    827
+dig4           99.78%   1859
+dig5           99.43%   1754
+dig6           96.56%   1686
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            99.22%   5137
+test8          94.80%    577
+zeros          99.35%    613
+blank09        98.71%    466
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=57.0         97.31%   2265
+mid <=70.2         99.51%   2264
+high >70.2         99.65%   2264
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=6713  mean=0.9884 median=1.0000 p10=0.9897
+  wrong    n=80    mean=0.7520 median=0.7394 p10=0.5111
+  mean P(N) over all images = 0.0597
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+N_main_dig2_20260817-021401.jpg                      N     8  1.0000
+8_main_dig6_20260806-200813.jpg                      8     0  1.0000
+8_main_dig6_20260807-052413.jpg                      8     0  0.9996
+5_main_dig4_20260830-071336.jpg                      5     0  0.9987
+3_main_dig6_20260919-234928.jpg                      3     2  0.9983
+8_main_dig6_20260807-013613.jpg                      8     0  0.9975
+N_main_dig2_20260903-104307.jpg                      N     8  0.9968
+N_main_dig4_20260928-081841.jpg                      N     9  0.9957
+N_main_dig3_20260911-163628.jpg                      N     8  0.9944
+8_main_dig6_20260807-023613.jpg                      8     0  0.9873
+0_main_dig4_20260822-182950.jpg                      0     8  0.9854
+7_main_dig3_20260730-195502.jpg                      7     9  0.9831
+8_main_dig6_20260805-053616.jpg                      8     0  0.9782
+3_main_dig6_20260903-015108.jpg                      3     4  0.9479
+5_main_dig6_20260804-023125.jpg                      5     9  0.9174
+7_main_dig5_20260804-052725.jpg                      7     3  0.9170
+8_main_dig6_20260806-015215.jpg                      8     0  0.9156
+8_main_dig6_20260805-211215.jpg                      8     0  0.9150
+8_main_dig6_20260804-204817.jpg                      8     0  0.9086
+3_main_dig6_20260816-215801.jpg                      3     7  0.9070
+
+MODEL: models/dig-class11_9002_s2.tflite
+------------------------------------------------------------
+Overall accuracy: 6066/6793 = 89.30%
+
+Confusion matrix (rows = true, cols = pred, class 10 = N)
+------------------------------------------------------------
+true\pred     0    1    2    3    4    5    6    7    8    9    N    tot
+       0    684    0    0    0    0    0    1    0   97   59    0    841
+       1      1  482    0    1   33    0    0    0    1   13    0    531
+       2      0    0  512    0    0    0    9    4    7    0    1    533
+       3      0    0    3  458    1    0   10   16   28   18    0    534
+       4      0    0    0    0  497    0    0    0    0   20    0    517
+       5      1    0    0    0    0  608  106    0    0    1    0    716
+       6      0    0    0    0    0    0  423    0    0    0    0    423
+       7     15    0    1   25    0    0    0  635    7    9    0    692
+       8     23    0    0    0    0    0   33    0  796   28    0    880
+       9      4    0    0    0   39    1   12    0   91  566    0    713
+       N      0    0    0    0    0    2    0    0    5    1  405    413
+     tot    728  482  516  484  570  611  594  655 1032  715  406   6793
+
+Off-diagonal cells with count >= 2 (ranked)
+------------------------------------------------------------
+  5->6 x106
+  0->8 x97
+  9->8 x91
+  0->9 x59
+  9->4 x39
+  8->6 x33
+  1->4 x33
+  8->9 x28
+  3->8 x28
+  7->3 x25
+  8->0 x23
+  4->9 x20
+  3->9 x18
+  3->7 x16
+  7->0 x15
+  1->9 x13
+  9->6 x12
+  3->6 x10
+  7->9 x9
+  2->6 x9
+  7->8 x7
+  2->8 x7
+  N->8 x5
+  9->0 x4
+  2->7 x4
+  3->2 x3
+  N->5 x2
+
+Per digit position (user-style '_dig<N>_' files only)
+------------------------------------------------------------
+position          acc      n
+dig2           98.05%    667
+dig3           82.35%    827
+dig4           99.73%   1859
+dig5           94.07%   1754
+dig6           72.78%   1686
+
+Per screen type
+------------------------------------------------------------
+screen            acc      n
+kwh            90.07%   5137
+test8          89.95%    577
+zeros          76.51%    613
+blank09        96.78%    466
+
+Per contrast tercile (p95-p5 luma, terciles over the evaluated set)
+-------------------------------------------------------------------
+tercile               acc      n
+low <=57.0         80.09%   2265
+mid <=70.2         96.02%   2264
+high >70.2         91.78%   2264
+
+Confidence (max softmax)
+------------------------------------------------------------
+  correct  n=6066  mean=0.9557 median=0.9999 p10=0.8483
+  wrong    n=727   mean=0.6615 median=0.6521 p10=0.3429
+  mean P(N) over all images = 0.0613
+
+Worst 20 errors (most confident mistakes first)
+------------------------------------------------------------
+file                                              true  pred    conf
+9_main_dig3_20260914-132138.jpg                      9     8  1.0000
+5_main_dig6_20260921-130926.jpg                      5     6  1.0000
+N_main_dig2_20260817-021401.jpg                      N     8  0.9995
+5_main_dig6_20260911-133229.jpg                      5     6  0.9994
+9_main_dig6_20260924-141419.jpg                      9     8  0.9993
+5_main_dig6_20260912-101627.jpg                      5     6  0.9990
+5_main_dig6_20260921-130126.jpg                      5     6  0.9985
+5_main_dig6_20260912-100827.jpg                      5     6  0.9980
+5_main_dig6_20260925-154217.jpg                      5     6  0.9976
+8_main_dig6_20260804-234817.jpg                      8     9  0.9974
+8_main_dig6_20260805-010817.jpg                      8     9  0.9973
+5_main_dig6_20260926-154615.jpg                      5     6  0.9970
+8_main_dig6_20260804-204817.jpg                      8     9  0.9970
+8_main_dig6_20260806-015215.jpg                      8     9  0.9968
+9_main_dig6_20260921-162925.jpg                      9     8  0.9960
+5_main_dig6_20260927-164642.jpg                      5     6  0.9956
+5_main_dig6_20260913-104940.jpg                      5     6  0.9952
+5_main_dig6_20260928-154240.jpg                      5     6  0.9951
+5_main_dig6_20260911-132429.jpg                      5     6  0.9949
+0_main_dig6_20260806-022815.jpg                      0     9  0.9949
+
+PAIRED COMPARISON  A=models/dig-class11_9015_s2.tflite  B=models/dig-class11_9002_s2.tflite
+-------------------------------------------------------------------------------------------
+    overall             98.82%    89.30%   6793
+
+  by true class
+    stratum              A acc     B acc      n
+    0                   99.41%    81.33%    841
+    1                   99.62%    90.77%    531
+    2                   99.81%    96.06%    533
+    3                   97.57%    85.77%    534
+    4                  100.00%    96.13%    517
+    5                   99.44%    84.92%    716
+    6                   98.58%   100.00%    423
+    7                   99.42%    91.76%    692
+    8                   96.36%    90.45%    880
+    9                   98.88%    79.38%    713
+    N                   98.79%    98.06%    413
+
+  by position
+    stratum              A acc     B acc      n
+    dig2                99.55%    98.05%    667
+    dig3                99.40%    82.35%    827
+    dig4                99.78%    99.73%   1859
+    dig5                99.43%    94.07%   1754
+    dig6                96.56%    72.78%   1686
+
+  by screen
+    stratum              A acc     B acc      n
+    blank09             98.71%    96.78%    466
+    kwh                 99.22%    90.07%   5137
+    test8               94.80%    89.95%    577
+    zeros               99.35%    76.51%    613
+
+  fixed by A (models/dig-class11_9015_s2.tflite) vs B: 674 file(s) (showing 20)
+    0_main_dig2_20260817-224559.jpg                  true=0 other_pred=8 conf=0.5116
+    0_main_dig2_20260823-183348.jpg                  true=0 other_pred=8 conf=0.7124
+    0_main_dig2_20260824-064947.jpg                  true=0 other_pred=8 conf=0.7597
+    0_main_dig2_20260904-230658.jpg                  true=0 other_pred=8 conf=0.5967
+    0_main_dig2_20260905-041458.jpg                  true=0 other_pred=8 conf=0.9524
+    0_main_dig3_20260806-024815.jpg                  true=0 other_pred=8 conf=0.9345
+    0_main_dig3_20260806-050815.jpg                  true=0 other_pred=8 conf=0.9072
+    0_main_dig3_20260815-193003.jpg                  true=0 other_pred=8 conf=0.7389
+    0_main_dig3_20260815-205803.jpg                  true=0 other_pred=8 conf=0.5588
+    0_main_dig3_20260816-122601.jpg                  true=0 other_pred=8 conf=0.6192
+    0_main_dig3_20260816-181401.jpg                  true=0 other_pred=8 conf=0.7216
+    0_main_dig3_20260816-183401.jpg                  true=0 other_pred=8 conf=0.8514
+    0_main_dig3_20260816-185401.jpg                  true=0 other_pred=8 conf=0.8946
+    0_main_dig3_20260816-234201.jpg                  true=0 other_pred=8 conf=0.9468
+    0_main_dig3_20260817-034200.jpg                  true=0 other_pred=8 conf=0.9700
+    0_main_dig3_20260817-044200.jpg                  true=0 other_pred=8 conf=0.9436
+    0_main_dig3_20260817-063000.jpg                  true=0 other_pred=8 conf=0.9383
+    0_main_dig3_20260817-065000.jpg                  true=0 other_pred=8 conf=0.8826
+    0_main_dig3_20260817-071000.jpg                  true=0 other_pred=8 conf=0.6808
+    0_main_dig3_20260817-073000.jpg                  true=0 other_pred=8 conf=0.5335
+
+  broken by A (models/dig-class11_9015_s2.tflite) vs B: 27 file(s) (showing 20)
+    0_main_dig5_20260911-203628.jpg                  true=0 other_pred=8 conf=0.5556
+    0_main_dig5_20260911-225228.jpg                  true=0 other_pred=8 conf=0.7242
+    0_main_dig6_20260804-053125.jpg                  true=0 other_pred=9 conf=0.5613
+    5_main_dig6_20260827-034942.jpg                  true=5 other_pred=9 conf=0.5111
+    5_main_dig6_20260902-010531.jpg                  true=5 other_pred=9 conf=0.5104
+    6_main_dig6_20260820-200553.jpg                  true=6 other_pred=5 conf=0.7588
+    6_main_dig6_20260823-001349.jpg                  true=6 other_pred=5 conf=0.8117
+    6_main_dig6_20260826-000544.jpg                  true=6 other_pred=8 conf=0.4826
+    6_main_dig6_20260903-033108.jpg                  true=6 other_pred=8 conf=0.5146
+    6_main_dig6_20260905-041058.jpg                  true=6 other_pred=5 conf=0.4634
+    6_main_dig6_20260905-042258.jpg                  true=6 other_pred=8 conf=0.5760
+    7_main_dig4_20260903-223507.jpg                  true=7 other_pred=0 conf=0.7913
+    8_main_dig3_20260817-035800.jpg                  true=8 other_pred=0 conf=0.7303
+    8_main_dig3_20260819-042556.jpg                  true=8 other_pred=0 conf=0.8791
+    8_main_dig3_20260831-081734.jpg                  true=8 other_pred=0 conf=0.7043
+    8_main_dig5_20260805-215215.jpg                  true=8 other_pred=0 conf=0.7335
+    8_main_dig5_20260807-034413.jpg                  true=8 other_pred=0 conf=0.5873
+    8_main_dig5_20260807-035613.jpg                  true=8 other_pred=0 conf=0.7070
+    8_main_dig6_20260806-195213.jpg                  true=8 other_pred=0 conf=0.7094
+    8_main_dig6_20260906-231124.jpg                  true=8 other_pred=0 conf=0.8976
+
+ROI-SHIFT STABILITY
+------------------------------------------------------------
+
+  6793 native-resolution images x 9 windows x 2 shift scales
+    overall         s    agree  distinct  maxsoft     n
+    ALL          0.03    0.984     1.064   0.9816  6793
+    ALL          0.06    0.957     1.216   0.9653  6793
+
+  by position
+    stratum         s    agree  distinct  maxsoft     n
+    dig2         0.03    0.998     1.009   0.9990   667
+    dig2         0.06    0.998     1.009   0.9982   667
+    dig3         0.03    0.983     1.062   0.9862   827
+    dig3         0.06    0.976     1.103   0.9809   827
+    dig4         0.03    0.999     1.004   0.9991  1859
+    dig4         0.06    0.986     1.083   0.9906  1859
+    dig5         0.03    0.982     1.066   0.9818  1754
+    dig5         0.06    0.948     1.239   0.9622  1754
+    dig6         0.03    0.966     1.153   0.9531  1686
+    dig6         0.06    0.910     1.474   0.9200  1686
+
+  by true class
+    stratum         s    agree  distinct  maxsoft     n
+    0            0.03    0.993     1.025   0.9905   841
+    0            0.06    0.990     1.048   0.9874   841
+    1            0.03    0.991     1.026   0.9869   531
+    1            0.06    0.972     1.188   0.9638   531
+    2            0.03    0.998     1.013   0.9950   533
+    2            0.06    0.987     1.090   0.9827   533
+    3            0.03    0.969     1.112   0.9537   534
+    3            0.06    0.900     1.584   0.9164   534
+    4            0.03    0.997     1.014   0.9947   517
+    4            0.06    0.981     1.106   0.9780   517
+    5            0.03    0.989     1.049   0.9837   716
+    5            0.06    0.978     1.102   0.9803   716
+    6            0.03    0.989     1.038   0.9881   423
+    6            0.06    0.976     1.109   0.9810   423
+    7            0.03    0.980     1.092   0.9749   692
+    7            0.06    0.904     1.497   0.9351   692
+    8            0.03    0.976     1.099   0.9767   880
+    8            0.06    0.948     1.240   0.9602   880
+    9            0.03    0.960     1.160   0.9686   713
+    9            0.06    0.925     1.299   0.9514   713
+    N            0.03    0.989     1.031   0.9933   413
+    N            0.06    0.989     1.053   0.9908   413
