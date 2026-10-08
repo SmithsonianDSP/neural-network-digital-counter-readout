@@ -1,0 +1,336 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791487865.006583    2768 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791487868.515449    2768 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+dig-class11 graph: 88023 params
+upstream 03_data_resize_all-use_for_training: 1290 images
+user     04_joe_lcd_20x32: 6785 images (4636 frames)
+
+=== FINAL: train on 100% of the pool, 8075 images (1290 upstream + 6785 user x1), 125 epochs, no validation, no early stopping ===
+Epoch 1/125
+2019/2019 - 12s - 6ms/step - accuracy: 0.1937 - loss: 2.2347
+Epoch 2/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.4540 - loss: 1.5056
+Epoch 3/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.5305 - loss: 1.2638
+Epoch 4/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.5907 - loss: 1.1333
+Epoch 5/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.6328 - loss: 1.0525
+Epoch 6/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.6663 - loss: 0.9625
+Epoch 7/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.6846 - loss: 0.9160
+Epoch 8/125
+2019/2019 - 11s - 6ms/step - accuracy: 0.6898 - loss: 0.9006
+Epoch 9/125
+2019/2019 - 11s - 6ms/step - accuracy: 0.7133 - loss: 0.8454
+Epoch 10/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7212 - loss: 0.8344
+Epoch 11/125
+2019/2019 - 11s - 6ms/step - accuracy: 0.7258 - loss: 0.8204
+Epoch 12/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7288 - loss: 0.8073
+Epoch 13/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7435 - loss: 0.7595
+Epoch 14/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7315 - loss: 0.7852
+Epoch 15/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7454 - loss: 0.7422
+Epoch 16/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7476 - loss: 0.7390
+Epoch 17/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7471 - loss: 0.7473
+Epoch 18/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7598 - loss: 0.6988
+Epoch 19/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7624 - loss: 0.7021
+Epoch 20/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7526 - loss: 0.7311
+Epoch 21/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7676 - loss: 0.6989
+Epoch 22/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7672 - loss: 0.6799
+Epoch 23/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7690 - loss: 0.6805
+Epoch 24/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7695 - loss: 0.6829
+Epoch 25/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7672 - loss: 0.6867
+Epoch 26/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7772 - loss: 0.6694
+Epoch 27/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7703 - loss: 0.6837
+Epoch 28/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7721 - loss: 0.6752
+Epoch 29/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7838 - loss: 0.6558
+Epoch 30/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7751 - loss: 0.6631
+Epoch 31/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7724 - loss: 0.6730
+Epoch 32/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7704 - loss: 0.6714
+Epoch 33/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7740 - loss: 0.6532
+Epoch 34/125
+2019/2019 - 11s - 6ms/step - accuracy: 0.7725 - loss: 0.6662
+Epoch 35/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7813 - loss: 0.6485
+Epoch 36/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7776 - loss: 0.6594
+Epoch 37/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7880 - loss: 0.6358
+Epoch 38/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7896 - loss: 0.6356
+Epoch 39/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7809 - loss: 0.6460
+Epoch 40/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7839 - loss: 0.6396
+Epoch 41/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7897 - loss: 0.6327
+Epoch 42/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7825 - loss: 0.6480
+Epoch 43/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7879 - loss: 0.6351
+Epoch 44/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7865 - loss: 0.6254
+Epoch 45/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7877 - loss: 0.6390
+Epoch 46/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7772 - loss: 0.6715
+Epoch 47/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7854 - loss: 0.6405
+Epoch 48/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7896 - loss: 0.6183
+Epoch 49/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7884 - loss: 0.6273
+Epoch 50/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7934 - loss: 0.6203
+Epoch 51/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7875 - loss: 0.6286
+Epoch 52/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7822 - loss: 0.6500
+Epoch 53/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7871 - loss: 0.6250
+Epoch 54/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7866 - loss: 0.6484
+Epoch 55/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7897 - loss: 0.6532
+Epoch 56/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7934 - loss: 0.6258
+Epoch 57/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7890 - loss: 0.6241
+Epoch 58/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7858 - loss: 0.6418
+Epoch 59/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7910 - loss: 0.6427
+Epoch 60/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7844 - loss: 0.6524
+Epoch 61/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7834 - loss: 0.6419
+Epoch 62/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7893 - loss: 0.6372
+Epoch 63/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7870 - loss: 0.6467
+Epoch 64/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7960 - loss: 0.6217
+Epoch 65/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7866 - loss: 0.6427
+Epoch 66/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7949 - loss: 0.6181
+Epoch 67/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7879 - loss: 0.6452
+Epoch 68/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7877 - loss: 0.6533
+Epoch 69/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7864 - loss: 0.6380
+Epoch 70/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7853 - loss: 0.6392
+Epoch 71/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7918 - loss: 0.6380
+Epoch 72/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7975 - loss: 0.6176
+Epoch 73/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7908 - loss: 0.6379
+Epoch 74/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7819 - loss: 0.6497
+Epoch 75/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7921 - loss: 0.6275
+Epoch 76/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7841 - loss: 0.6494
+Epoch 77/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7896 - loss: 0.6359
+Epoch 78/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7882 - loss: 0.6431
+Epoch 79/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7901 - loss: 0.6483
+Epoch 80/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7841 - loss: 0.6492
+Epoch 81/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7916 - loss: 0.6328
+Epoch 82/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7884 - loss: 0.6380
+Epoch 83/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7861 - loss: 0.6513
+Epoch 84/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7766 - loss: 0.6694
+Epoch 85/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7859 - loss: 0.6537
+Epoch 86/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7827 - loss: 0.6570
+Epoch 87/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7819 - loss: 0.6481
+Epoch 88/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7822 - loss: 0.6548
+Epoch 89/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7829 - loss: 0.6494
+Epoch 90/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7866 - loss: 0.6594
+Epoch 91/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7889 - loss: 0.6424
+Epoch 92/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7860 - loss: 0.6481
+Epoch 93/125
+2019/2019 - 11s - 6ms/step - accuracy: 0.7867 - loss: 0.6549
+Epoch 94/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7891 - loss: 0.6426
+Epoch 95/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7807 - loss: 0.6706
+Epoch 96/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7830 - loss: 0.6528
+Epoch 97/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7933 - loss: 0.6322
+Epoch 98/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7950 - loss: 0.6309
+Epoch 99/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7838 - loss: 0.6636
+Epoch 100/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7850 - loss: 0.6451
+Epoch 101/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7858 - loss: 0.6429
+Epoch 102/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7817 - loss: 0.6552
+Epoch 103/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7794 - loss: 0.6608
+Epoch 104/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7850 - loss: 0.6479
+Epoch 105/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7880 - loss: 0.6559
+Epoch 106/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7835 - loss: 0.6749
+Epoch 107/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7856 - loss: 0.6572
+Epoch 108/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7809 - loss: 0.6679
+Epoch 109/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7854 - loss: 0.6631
+Epoch 110/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7924 - loss: 0.6508
+Epoch 111/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7861 - loss: 0.6585
+Epoch 112/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7856 - loss: 0.6511
+Epoch 113/125
+2019/2019 - 10s - 5ms/step - accuracy: 0.7910 - loss: 0.6512
+Epoch 114/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7941 - loss: 0.6482
+Epoch 115/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7824 - loss: 0.6639
+Epoch 116/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7833 - loss: 0.6703
+Epoch 117/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7881 - loss: 0.6433
+Epoch 118/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7947 - loss: 0.6410
+Epoch 119/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7871 - loss: 0.6571
+Epoch 120/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7839 - loss: 0.6719
+Epoch 121/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7823 - loss: 0.6721
+Epoch 122/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7865 - loss: 0.6654
+Epoch 123/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7875 - loss: 0.6540
+Epoch 124/125
+2019/2019 - 11s - 5ms/step - accuracy: 0.7887 - loss: 0.6613
+Epoch 125/125
+2019/2019 - 20s - 10ms/step - accuracy: 0.7884 - loss: 0.6769
+[final] ran 125 epochs in 1353s (10.82 s/ep), final loss 0.67690, acc 0.7884
+saved models\dig-class11_9019_s2.keras
+Static-shape rebuild verified (max delta 0.00e+00)
+Saved artifact at 'C:\Users\josep\AppData\Local\Temp\tmphi5c98zo'. The following endpoints are available:
+
+* Endpoint 'serve'
+  args_0 (POSITIONAL_ONLY): TensorSpec(shape=(1, 32, 20, 3), dtype=tf.float32, name='keras_tensor_24')
+Output Type:
+  TensorSpec(shape=(1, 11), dtype=tf.float32, name=None)
+Captures:
+  1991221279056: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279824: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279632: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278480: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280208: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278672: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280400: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478608: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223477072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223476304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223479376: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223480528: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  representative dataset: 256 distinct images (256 user + 0 upstream)
+Saved artifact at 'C:\Users\josep\AppData\Local\Temp\tmpa5ekyim9'. The following endpoints are available:
+
+* Endpoint 'serve'
+  args_0 (POSITIONAL_ONLY): TensorSpec(shape=(1, 32, 20, 3), dtype=tf.float32, name='keras_tensor_24')
+Output Type:
+  TensorSpec(shape=(1, 11), dtype=tf.float32, name=None)
+Captures:
+  1991221279056: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279824: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279632: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278480: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280208: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278672: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280400: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478608: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223477072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223476304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223479376: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223480528: TensorSpec(shape=(), dtype=tf.resource, name=None)
+C:\Users\josep\AppData\Local\Programs\Python\Python312\Lib\site-packages\tensorflow\lite\python\convert.py:846: UserWarning: Statistics for quantized inputs were expected, but not specified; continuing anyway.
+  warnings.warn(
+fully_quantize: 0, inference_type: 6, input_inference_type: FLOAT32, output_inference_type: FLOAT32
+Saved artifact at 'C:\Users\josep\AppData\Local\Temp\tmp77qyf5rt'. The following endpoints are available:
+
+* Endpoint 'serve'
+  args_0 (POSITIONAL_ONLY): TensorSpec(shape=(1, 32, 20, 3), dtype=tf.float32, name='keras_tensor_24')
+Output Type:
+  TensorSpec(shape=(1, 11), dtype=tf.float32, name=None)
+Captures:
+  1991221279056: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279824: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221279632: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278480: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280208: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221278672: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991221280400: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478608: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223477072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223476304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223478992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223479376: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  1991223480528: TensorSpec(shape=(), dtype=tf.resource, name=None)
+C:\Users\josep\AppData\Local\Programs\Python\Python312\Lib\site-packages\tensorflow\lite\python\convert.py:846: UserWarning: Statistics for quantized inputs were expected, but not specified; continuing anyway.
+  warnings.warn(
+fully_quantize: 0, inference_type: 6, input_inference_type: FLOAT32, output_inference_type: FLOAT32
+exported models\dig-class11_9019_s2.tflite  (349 KB)
+exported models\dig-class11_9019_s2_q.tflite  (95 KB)
+exported models\dig-class11_9019_s2_qpt.tflite  (93 KB)

@@ -1,0 +1,119 @@
+holdout days (7): ['20260818', '20260825', '20260901', '20260909', '20260916', '20260923', '20260929']
+ledger work\review_ledger.csv: 8865 effective items; screen stage {'ok': 7146, 'drift': 1625, '-': 51, 'artifact': 32, 'relabeled': 11}; label stage {'label_ok': 7128, 'label_fixed': 86, '-': 1646, 'label_unsure': 5}
+needs_verify from work\queues: 7745 queued items, 1482 need verification (1417 verified so far)
+legacy-trusted: 2413 crops (0 unparseable names skipped, 0 duplicate keys skipped); hand-culled list: 1580; b3_derive: 82795 crops; validation_labeled: 240 crops
+existing top level of joes-samples: 6793 jpgs, of which 1 are in neither legacy source nor an ok-ledger row (derived-only; dropped)
+candidates: b3_crops=6240, b3_missing_in_derive_hour_fallback=0, culled_but_rereviewed_ok=3, ledger_artifact=32, ledger_drift=1540, ledger_holdout_rows=875, ledger_label_unsure=5, ledger_ok=6356, ledger_ok+label_fixed=68, ledger_ok+label_ok=6288, ledger_overrides_legacy_label=1, ledger_pending_not_screened=46, ledger_relabeled=11, ledger_relabeled+label_fixed=1, ledger_relabeled+label_ok=10, legacy_culled=35, legacy_pending_in_ledger=29, legacy_rejected_by_ledger=67, legacy_untouched=2277
+--reserve work\selection_night_manifest.txt: 662 crop(s) held back, 644 removed from the candidate pool
+
+=== per (pos, class, bucket): available > selected ===
+pos   lbl |       day |     trans |     flash |   sel  flash%
+dig2    0 |     52>52 |     45>40 |     85>80 |   172     47%
+dig2    5 |     70>60 |     52>40 |    243>80 |   180     44%
+dig2    8 |     61>60 |     46>40 |    119>80 |   180     44%
+dig2    N |     45>45 |     46>40 |     50>50 |   135     37%
+dig3    0 |     48>48 |     46>40 |     80>80 |   168     48%
+dig3    7 |     54>54 |     28>28 |    246>80 |   162     49%
+dig3    8 |     55>55 |     46>40 |    163>80 |   175     46%
+dig3    9 |     70>60 |     60>40 |     80>80 |   180     44%
+dig3    N |     48>48 |     46>40 |     53>53 |   141     38%
+dig4    0 |     50>50 |     44>40 |     80>80 |   170     47%
+dig4    1 |     55>55 |     46>40 |     80>80 |   175     46%
+dig4    2 |     53>53 |     46>40 |     81>80 |   173     46%
+dig4    3 |     62>60 |     46>40 |     80>80 |   180     44%
+dig4    4 |     55>55 |     46>40 |     80>80 |   175     46%
+dig4    5 |     62>60 |     49>40 |    105>80 |   180     44%
+dig4    6 |     17>17 |     43>40 |    144>80 |   137     58%
+dig4    7 |     52>52 |     46>40 |     80>80 |   172     47%
+dig4    8 |     68>60 |     45>40 |    177>80 |   180     44%
+dig4    9 |     64>60 |     45>40 |     80>80 |   180     44%
+dig4    N |     46>46 |     49>40 |     51>51 |   137     37%
+dig5    0 |     66>60 |     48>40 |     71>71 |   171     42%
+dig5    1 |     68>60 |     46>40 |     89>80 |   180     44%
+dig5    2 |     65>60 |     45>40 |     80>80 |   180     44%
+dig5    3 |     54>54 |     44>40 |     95>80 |   174     46%
+dig5    4 |     65>60 |     45>40 |     77>77 |   177     44%
+dig5    5 |     56>56 |     48>40 |     80>80 |   176     45%
+dig5    6 |     57>57 |     46>40 |     80>80 |   177     45%
+dig5    7 |     58>58 |     48>40 |     86>80 |   178     45%
+dig5    8 |     48>48 |     53>40 |    158>80 |   168     48%
+dig5    9 |     55>55 |     38>38 |     80>80 |   173     46%
+dig6    0 |     57>57 |     45>40 |     62>62 |   159     39%
+dig6    1 |     56>56 |     49>40 |     79>79 |   175     45%
+dig6    2 |     67>60 |     45>40 |     85>80 |   180     44%
+dig6    3 |     62>60 |     47>40 |    100>80 |   180     44%
+dig6    4 |     62>60 |     40>40 |     61>61 |   161     38%
+dig6    5 |     73>60 |     61>40 |    103>80 |   180     44%
+dig6    6 |     38>38 |     40>40 |     31>31 |   109     28%
+dig6    7 |     59>59 |     45>40 |     83>80 |   179     45%
+dig6    8 |     61>60 |     36>36 |    103>80 |   176     45%
+dig6    9 |     84>60 |     52>40 |    101>80 |   180     44%
+
+=== per-class flash share (selected) ===
+   0: n=840   day=267  trans=200  flash=373  flash%= 44
+   1: n=530   day=171  trans=120  flash=239  flash%= 45
+   2: n=533   day=173  trans=120  flash=240  flash%= 45
+   3: n=534   day=174  trans=120  flash=240  flash%= 45
+   4: n=513   day=175  trans=120  flash=218  flash%= 42
+   5: n=716   day=236  trans=160  flash=320  flash%= 45
+   6: n=423   day=112  trans=120  flash=191  flash%= 45
+   7: n=691   day=223  trans=148  flash=320  flash%= 46
+   8: n=879   day=283  trans=196  flash=400  flash%= 46
+   9: n=713   day=235  trans=158  flash=320  flash%= 45
+   N: n=413   day=139  trans=120  flash=154  flash%= 37
+  ALL: n=6785  flash%=44  spread across classes 37%..46%
+
+=== provenance (selected) ===
+  legacy=1578  ledger=5207 (of which also legacy-trusted: 5)
+  verdicts: (legacy, no ledger row)=1578, ok=5200, relabeled=7
+  b3 crops: 5130
+
+=== test-screen share, classes 0 / 8 (selected) ===
+  class 0: 366/840 = 44% test-screen
+      dig2: 172/172 = 100%
+      dig3: 168/168 = 100%
+      dig4: 7/170 = 4%
+      dig5: 12/171 = 7%
+      dig6: 7/159 = 4%
+  class 8: 304/879 = 35% test-screen
+      dig2: 180/180 = 100%
+      dig3: 30/175 = 17%
+      dig4: 33/180 = 18%
+      dig5: 45/168 = 27%
+      dig6: 16/176 = 9%
+
+caps: day 60 / transition 40 / flash 80; test-share 0.3; flash-ratio 1.0; seed 20260807
+pool 8000 -> selected 6785
+
+test-only (pos,class) exempt from the share cap (3):
+  dig2 class 0 (182/182 test-screen)
+  dig2 class 8 (226/226 test-screen)
+  dig3 class 0 (174/174 test-screen)
+
+rejected by ledger (non-holdout): 1577; new lines for work\culled.txt: 70
+
+holdout export -> work\holdout_b3: 158 complete frames (790 crops); dropped whole: 17 frame(s) with a rejected crop, 0 frame(s) with an unverified/unscreened crop (0 awaiting verification), 0 incomplete frame(s)
+  rejected frame 20260818-090158: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260818-095758: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260818-103358: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260818-112158: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260818-124958: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260818-234957: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260825-103345: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260825-111745: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260825-143744: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-002533: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-020133: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-093732: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-111332: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-134532: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-143732: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260901-150932: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+  rejected frame 20260929-123039: dig2:drift, dig3:drift, dig4:drift, dig5:drift, dig6:drift
+
+backed up 6793 jpg(s) -> joes-samples\_backup_20261008-142956
+cleared 6793 existing *.jpg, wrote 6785 -> joes-samples
+manifest -> work\corpus_manifest.csv
+appended 70 to work\culled.txt, 70 to work\culled_reasons.csv
+holdout: wrote 790 -> work\holdout_b3
+done in 13.4s

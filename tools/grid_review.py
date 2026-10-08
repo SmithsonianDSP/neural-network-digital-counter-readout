@@ -1202,9 +1202,14 @@ class Session:
 
         def drow_entry(d: DRow, cur: bool) -> dict:
             truth = d.truth if d.truth not in ("", "?") else "?"
+            # h = the human label currently in effect for this neighbour (blank if never
+            # reviewed, x if rejected) -- the derivation (t/e) can be wrong for hours
+            e = self.eff.get(f"{d.stamp}_dig{d.pos}")
+            h = "" if e is None else ("x" if e["rejected"] else (e["final"] or ""))
             return {"stamp": d.stamp, "path": d.path, "current": cur,
                     "lines": [hhmm(d.stamp) + (f"  {d.est}" if d.est else ""),
-                              f"t {truth}  e {est_digit(d.est, d.pos)}  m {d.model}"]}
+                              f"t {truth}  e {est_digit(d.est, d.pos)}  m {d.model}",
+                              f"h {h or '-'}"]}
 
         if self.derive is not None and (self.derive.get(it.stamp, it.pos) is not None):
             prev, nxt = self.derive.neighbours(it.stamp, it.pos, n)
@@ -1912,7 +1917,7 @@ class GridApp:
             strip = self.s.time_strip(it, self.args.strip)
             tk.Label(top, bg=BG, fg="#9cf", font=("Consolas", 10), anchor="w",
                      text=(f"dig{it.pos} in the nearest reading-screen frames "
-                           f"(t = derived truth, e = reading_est digit, m = model):")
+                           f"(t = derived truth, e = reading_est digit, m = model, h = your label):")
                      ).grid(row=2, column=0, columnspan=7, sticky="w", padx=8)
             sr = tk.Frame(top, bg=BG)
             sr.grid(row=3, column=0, columnspan=7, sticky="w", padx=4, pady=(0, 6))

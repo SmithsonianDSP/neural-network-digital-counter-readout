@@ -16,6 +16,9 @@ models/*
 !models/dig-class11_9015_s2_q.tflite
 !models/dig-class11_9015_s2.keras
 !models/dig-class11_9002_s2.tflite
+!models/dig-class11_9018_s2.tflite
+!models/dig-class11_9018_s2_q.tflite
+!models/dig-class11_9018_s2.keras
 work/*/
 !work/queues/
 !work/holdout_b3/

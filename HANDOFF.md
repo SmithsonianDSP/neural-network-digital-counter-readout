@@ -20,9 +20,13 @@ derived-label technique). Original problem statement: `HANDOFF-ELECTRIC-LCD.md`.
   rate, abs, error, dig2..dig6). Image dirs 08-08 → 08-14 do not exist.
 - **Review ledger:** `work/review_ledger.csv` (append-only; backups
   `work/review_ledger.backup-*.csv`). Every training and holdout crop has a human verdict.
-- **Corpus:** `joes-samples/` top level = 6,793 crops (`work/corpus_manifest.csv`), built by
-  `build_corpus.py --from-ledger`. Earlier corpora are kept in `joes-samples/_backup_*/`
-  (140814 = the old 1,288; 182230 = 9008's; 183546 = 9009's; 190016 = 9010–12's).
+- **Candidate held, not deployed: `models/dig-class11_9018_s2.tflite`** (2026-10-08).
+  Best on every test set (§5a), but 3× more fragile under int8 and on the same 7/3 knife
+  edge as the bad seeds. Decision deferred to the mid-Nov rollover batch (§7.1).
+- **Corpus:** `joes-samples/` top level = 6,785 crops (`work/corpus_manifest.csv`) — the
+  9018–9020 corpus, built by `build_corpus.py --from-ledger --stable-sampling --reserve
+  work/selection_night_manifest.txt`. 9015's corpus is the newest `joes-samples/_backup_*/`;
+  older: 140814 = the old 1,288; 182230 = 9008's; 183546 = 9009's; 190016 = 9010–12's.
 - **Holdout:** `work/holdout_b3/` — 790 crops / 158 complete frames from 7 whole held-out
   days (`work/queues/holdout_days.txt`: 08-18, 08-25, 09-01, 09-09, 09-16, 09-23, 09-29).
   No crop from those days is in any corpus. Includes dash/N. The old 240-crop
@@ -96,8 +100,9 @@ New or revised this cycle (all confirmed with Joseph):
 | `roi_drift.py` | per-crop / per-frame shift vs templates → `work/roi_drift.csv`, plots |
 | `build_queues.py` | holdout + priority review queues → `work/queues/*.csv` (`needs_verify` column) |
 | `grid_review.py` | the reviewer. Modes: `--mode verify` (confirm uncertain labels), `screen` (artifacts/drift only), `consistency` (pages of one label, all light mixed), `audit` (re-check crops already labelled; `--redo-since STAMP` re-opens `x` calls). `--strip N` sets the zoom time strip. `d` is frame-wide. 22 tests in `test_grid_review.py` |
-| `build_corpus.py --from-ledger` | ledger-gated corpus + `--holdout-out`; per-cell caps, test-share cap, per-class flash ratio; writes manifest, culls with reasons; backs up `joes-samples/` before `--apply`. Tests: `work/_test_build_corpus/run_tests.py` |
+| `build_corpus.py --from-ledger` | ledger-gated corpus + `--holdout-out`; per-cell caps, test-share cap, per-class flash ratio; `--stable-sampling` (always use), `--reserve FILE`; writes manifest, culls with reasons; backs up `joes-samples/` before `--apply`. Tests: `work/_test_build_corpus/run_tests.py` |
 | `oof_audit_queue.py` | CV out-of-fold disagreements → audit queue |
+| `grid_review.py` zoom | the time strip's `h` line shows the human label of each neighbouring frame |
 | `holdout_report.py` | stratified holdout report + fixed/broken lists |
 | `train_dig_class11.py` | + `--fold-by`, rep-dataset capped at `--rep-size` |
 | `drift_preflag.py` | the (failed) automatic drift pre-flag analysis |
@@ -148,11 +153,85 @@ is ever needed.
   0/8/9). The model reads signal the eye can't; that only works because the timeline
   labels are good — keep them good.
 
+## 5a. Follow-up (2026-10-08): right epoch count, the 7/3 cluster, 9018
+
+**E\* was wrong for the cleaned corpus.** Fresh day-grouped CV on the final corpus: best
+epochs 103/91/150/146/96 → **E\* = 125** (not 75); pooled OOF **98.47%** (was 97.77% on
+the 9008 corpus — the label cleanup measurably helped). 9013–9015 were trained at 75.
+
+| model | seed | epochs | hold all | night rdg frames | hold nt dig6 / dig5 | sel nt dig6 | probe | up +1/+2 | up ≥+3 |
+|---|---|---|---|---|---|---|---|---|---|
+| 9015 (deployed) | 123 | 75 | 97.6% | 77.1% | 87.5 / 97.9% | 93.6% | 63/71 | 0 | 2 |
+| **9018** | 42 | 125 | **98.4%** | **87.5%** | **91.7 / 100%** | **95.0%** | **64/70** | 0 | 5 |
+| 9019 | 7 | 125 | 95.7% | 68.8% | 70.8 / 95.8% | 55.4% | 21/70 | 7 | 6 |
+| 9020 | 123 | 125 | 96.1% | 70.8% | 75.0 / 95.8% | 59.0% | 21/70 | 0 | 9 |
+
+9018 gates: op set ✅, `1→7` 0 ✅, ROI-shift 0.979/0.950 ✅, old Aug holdout 97.92% ✅,
+only 3 broken vs 9002 ✅, upstream 92.4% (info). int8: 9018 `_q` loses 16 pts on selection
+night dig6 (95.0 → 79.1%) and 5 daytime crops; 9015 `_q` loses 3 pts. **If a quantized
+build is ever needed, use 9015 `_q`.**
+
+**The seed variance is one cluster flipping.** 52 night dig6 **7s** in the selection set
+(mostly the Sept stretches where 9002 read them as 0) decide everything: 9019 reads 46 of
+them as 3, 9020 42, 9018 `_q` 12, 9015 5, 9018 float 0 — and every model's 7→3 errors are
+a subset of the bad seeds'. **All 52 were verified as 7s with the wide strip** (46 in the
+probe, the last 6 on 2026-10-08). So the training data supports two near-equal rules for
+this washout; at 75 or 125 epochs, about one seed in three lands on the right one. Longer
+training changed *which* seed wins, not the odds. 9018 is confident on these 7s (mean
+p(3) 0.05) yet flips under int8 — the fragility is in the weights, not the output
+confidence, so on-device confidence cannot reveal it.
+
+**Rules from this:** ≥3 seeds per candidate is mandatory, not optional; pick on the
+selection set (never the holdout); check the int8 build as a robustness probe even when
+shipping float; never reuse an E\* across a changed corpus — re-run CV.
+
 ## 6. Known gaps
 
-- **Cap-sampling churn.** Per-cell caps sample with `random.Random(seed|cell)` over the
-  pool, so any pool change (even 9 relabels) reshuffles the whole cell — ~100 night crops
-  swapped per rebuild. Makes corpus comparisons noisy. Fix first (§7.2).
+> **⚠ Scrutinize every step of +2 kWh or more between consecutive accepted readings —
+> *especially* when no error was registered.** (Joseph, 2026-10-07.) Larger steps (+3,
+> +4, …) are not automatically "catch-ups after rejected reads"; a big step soon after
+> the previous accepted reading is the misread itself. Judge each step against the time
+> since the previous accepted reading.
+>
+> At this meter's night usage, consecutive accepted readings normally differ by 0 or +1.
+> A +2 step means a value was skipped. A skipped value is the footprint of the one
+> failure that gets past every filter: an upward dig6 misread small enough to look like
+> real usage. Live example, 9015's first night (2026-10-04, early morning): dig6 went
+> 2 → **7** → (resync) → 4 with no accepted 3. The 7 was a misread, most likely 3→7 (the
+> known night axis, §5), possibly 2→7. The HA filter caught that one because +5 was too
+> big. A +1 or +2 misread (2→3 read early, 3→5, 7→9) would not be caught, and leaves
+> exactly this signature: a +2 step and **no error anywhere**.
+>
+> - **Monitoring:** a +2 step in the accepted series is a suspected silent misread, not
+>   "usage". Check the raw reads (CSV col 3, all frames incl. rejected) around it: did the
+>   skipped value ever appear? Did the larger value appear early or flicker?
+> - **Label derivation:** the same signature corrupts training labels. A consistent
+>   misread makes a value look like it "lasted twice as long, then skipped one"
+>   (§2, 9→8 / 5→6 after 09-04). `select_review_set.py`'s skip guard unpins runs around
+>   skips. Keep it, and treat crops next to any +2 step as Mode-1 (verify with the wide
+>   strip), never as "model + derivation agree".
+> - **Model evaluation:** "zero registered errors" is not the same as "zero wrong
+>   readings". Count +2 steps when judging a deployed model.
+
+**Label-consistency checks (2026-10-08).** Two cheap nets for labels that "read clean":
+- *Model refuses its own training label:* run the shipped model over `joes-samples/`;
+  of 9015's 80 disagreements, 8 were real label errors (10%) — after every other pass.
+- *Count-up rule on human labels:* within a frame's human dig5+dig6 labels, the
+  two-digit value must never decrease over time. **Group by the human labels, never by
+  the derivation's `reading_est`** — the first attempt grouped by the derived tens digit,
+  which is wrong in exactly the weak stretches, and produced 30/30 false alarms. Done
+  correctly on 563 frames: 0 violations.
+- Worked example of a derivation wrong for an hour: 2026-09-03 01:23–02:31, dig6 was 4
+  while 9002 read 9 every frame; the fit held "58683" throughout. The wide strip now
+  shows the human label of each neighbour (`h`), which made this visible.
+
+- **The night dig6 7/3 boundary is under-supported** (§5a) — the root of the seed
+  lottery. Top model-side gap.
+- **Cap-sampling churn — fixed as a flag.** `--stable-sampling` orders capped cells by a
+  per-crop hash, so a rebuild moves only the crops whose verdicts changed. It is *off by
+  default* (old builds stay reproducible); always pass it from now on. Switching it on
+  cost a one-time churn of ~580 crops vs 9015's corpus. `--reserve FILE` keeps listed
+  crops (the selection set) out of any corpus.
 - **~1,900 reviewed, accepted crops are capped out of training** (pool 8,712 → 6,793). Free
   boundary data; using it costs the selection set unless a new one is carved.
 - **~550 "soft" night dig5/dig6 labels** (derivation ambiguous, verified with the 3-reading
@@ -175,12 +254,20 @@ is ever needed.
 1. **On-device verification** after 2–3 nights: drop new CSVs (and crops, if handy) into
    `AIOTED-digital-rawdigits`; compare night accepted-reading rate and non-monotone count
    vs 9002's Aug 15–Sep 30 baseline. Rollback = switch the model file back to 9002.
-2. **Stable cap sampling** in `build_corpus.py`: rank each candidate by a hash of its
-   item_id and take the top N per cell, so pool changes only move the crops that changed.
+   **List every step of +2 kWh or more in the accepted series** (§6 note) and read the raw dig6
+   sequence around each; for 2026-10-04's 2→7, see whether the 7 sat in the 2-run or the
+   3-run.
+   **Also decide 9015 vs 9018 here:** score both (float and `_q`) on the rollover batch —
+   the first data with post-remount framing and a new dig2 digit. Swap earlier only if the
+   HA dashboard shows 9015 doing worse on device than its test numbers.
+2. **Support the night dig6 7/3 boundary** (§5a). First carve a *new* selection set from
+   held-back crops in the same Sept stretches (the current one can't judge a cluster once
+   it's trained on). Then add wide-strip-reviewed night dig6 7s with this washout plus the
+   washed 3s they're confused with (~15–20 min of review) and the ~1,900 reviewed crops
+   currently capped out. Success test: **all 3 seeds** get the cluster right.
 3. **Variance reduction in the recipe:** stochastic weight averaging over the last ~15
-   epochs of a final run (still one exported model), and/or raise caps to use the ~1,900
-   reviewed-but-unused crops (carve a fresh selection set first). Then re-run the 3-seed
-   protocol and compare spread.
+   epochs of a final run (still one exported model). Re-run the 3-seed protocol and
+   compare spread.
 4. **Night `00000` 0s:** queue ~60 dig3/5/6 night `00000` crops for a screen pass
    (labels certain) and relax the test-share cap for class 0 at night.
 5. **Dimmer-flash experiment** (AIOTE LED intensity): one night's capture. The night

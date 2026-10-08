@@ -8,3 +8,9 @@
 2026-10-03T18:30:15-05:00 grid_review audit session 20261003-182422-7227: 56 rows in 18 pages, 5.9 min, 9.5 crops/min (6.31 s/crop) | label_ok=43  label_fixed=5  label_unsure=8 | overall 56/56 done | ledger work\review_ledger.csv
 2026-10-03T18:58:53-05:00 grid_review audit session 20261003-185422-2913: 42 rows in 12 pages, 4.5 min, 9.3 crops/min (6.46 s/crop) | label_ok=13  label_fixed=24  label_unsure=5 | overall 42/42 done | ledger work\review_ledger.csv
 2026-10-03T19:07:42-05:00 grid_review audit session 20261003-190537-a232: 71 rows in 5 pages, 2.1 min, 33.9 crops/min (1.77 s/crop) | label_ok=70  label_fixed=1 | overall 77/77 done | ledger work\review_ledger.csv
+2026-10-08T13:13:26-05:00 grid_review audit session 20261008-131220-e639: 45 rows in 29 pages, 1.1 min, 40.8 crops/min (1.47 s/crop) | label_ok=45 | overall 74/74 done | ledger work\review_ledger.csv
+2026-10-08T13:27:07-05:00 grid_review audit session 20261008-131844-2e5f: 80 rows in 26 pages, 8.4 min, 9.5 crops/min (6.30 s/crop) | label_ok=72  label_fixed=8 | overall 80/80 done | ledger work\review_ledger.csv
+2026-10-08T13:32:22-05:00 grid_review audit session 20261008-132936-a551: 40 rows in 7 pages, 2.8 min, 14.5 crops/min (4.14 s/crop) | label_ok=40 | overall 40/40 done | ledger work\review_ledger.csv
+2026-10-08T13:33:05-05:00 grid_review audit session 20261008-133239-6ca7: 1 rows in 1 pages, 0.4 min, 2.3 crops/min (25.65 s/crop) | label_ok=1 | overall 40/40 done | ledger work\review_ledger.csv
+2026-10-08T14:26:15-05:00 grid_review audit session 20261008-142044-d569: 127 rows in 16 pages, 5.5 min, 23.0 crops/min (2.61 s/crop) | drift=70  label_ok=56  label_fixed=1 | overall 104/104 done | ledger work\review_ledger.csv
+2026-10-08T15:40:41-05:00 grid_review audit session 20261008-154026-ed3c: 6 rows in 1 pages, 0.3 min, 23.9 crops/min (2.51 s/crop) | label_ok=6 | overall 6/6 done | ledger work\review_ledger.csv

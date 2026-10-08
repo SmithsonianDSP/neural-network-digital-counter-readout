@@ -1,0 +1,7 @@
+queue,item_id,stamp,pos,src,proposed,bucket,brightness,context,preflag,group,needs_verify
+cluster7,20260902-023731_dig6,20260902-023731,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260902\02\1_main_dig6_20260902-023731.jpg,7,flash,74.05,night 7-vs-3 cluster; reading_est 58646,,,1
+cluster7,20260902-031331_dig6,20260902-031331,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260902\03\0_main_dig6_20260902-031331.jpg,7,flash,76.10,night 7-vs-3 cluster; reading_est 58646,,,1
+cluster7,20260903-052308_dig6,20260903-052308,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260903\05\1_main_dig6_20260903-052308.jpg,7,flash,75.29,night 7-vs-3 cluster; reading_est 58686,,,1
+cluster7,20260910-202000_dig6,20260910-202000,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260910\20\0_main_dig6_20260910-202000.jpg,7,flash,77.08,night 7-vs-3 cluster; reading_est 58966,,,1
+cluster7,20260920-062128_dig6,20260920-062128,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260920\06\0_main_dig6_20260920-062128.jpg,7,flash,78.17,night 7-vs-3 cluster; reading_est 59197,,,1
+cluster7,20260920-063728_dig6,20260920-063728,6,C:\Users\josep\source\repos\AIOTED-digital-rawdigits\20260920\06\0_main_dig6_20260920-063728.jpg,7,flash,79.07,night 7-vs-3 cluster; reading_est 59197,,,1

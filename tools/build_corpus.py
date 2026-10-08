@@ -580,6 +580,17 @@ def report_errors(errs: list[CorpusError]) -> None:
 # ---- selection -------------------------------------------------------------
 
 
+# --stable-sampling: order by a per-crop hash instead of shuffling the whole cell, so a
+# pool change (a relabel, a new reject) only moves the crops it touches. With plain
+# shuffling, 9 relabels reshuffled ~100 night crops between the 9008 and 9009 builds.
+STABLE = {"on": False, "seed": ""}
+
+
+def _h(*parts) -> str:
+    import hashlib
+    return hashlib.sha1("|".join(map(str, parts)).encode()).hexdigest()
+
+
 def _round_robin(items: list[Crop], k: int, rng: random.Random) -> list[Crop]:
     if k >= len(items):
         return list(items)
@@ -587,9 +598,14 @@ def _round_robin(items: list[Crop], k: int, rng: random.Random) -> list[Crop]:
     for c in sorted(items, key=lambda c: c.key):
         by_day[c.day].append(c)
     days = sorted(by_day)
-    rng.shuffle(days)
-    for d in days:
-        rng.shuffle(by_day[d])
+    if STABLE["on"]:
+        days.sort(key=lambda d: _h(STABLE["seed"], d))
+        for d in days:
+            by_day[d].sort(key=lambda c: _h(STABLE["seed"], *c.key), reverse=True)
+    else:
+        rng.shuffle(days)
+        for d in days:
+            rng.shuffle(by_day[d])
     out: list[Crop] = []
     while len(out) < k:
         for d in days:
@@ -980,6 +996,17 @@ def from_ledger(args) -> int:
         report_errors(errs)
         return 2
 
+    if args.reserve:
+        res = set()
+        for line in Path(args.reserve).read_text(encoding="utf-8").split():
+            m = re.search(r"(dig[2-6])_(\d{8}-\d{6})", line)
+            if m:
+                res.add((m.group(2), m.group(1)))
+        before = len(crops)
+        crops = [c for c in crops if c.key not in res]
+        print(f"--reserve {args.reserve}: {len(res)} crop(s) held back, "
+              f"{before - len(crops)} removed from the candidate pool")
+    STABLE.update(on=args.stable_sampling, seed=args.seed)
     caps = {"day": args.cap_day, "transition": args.cap_transition, "flash": args.cap_flash}
     sel, notes = select_cells(crops, caps, args.test_share, args.flash_ratio, args.seed,
                               ratio_scope=args.ratio_scope)
@@ -1106,6 +1133,12 @@ def add_ledger_args(ap: argparse.ArgumentParser) -> None:
                    help="export complete holdout-queue frames here (with --apply)")
     g.add_argument("--manifest", type=Path, default=Path("work/corpus_manifest.csv"))
     g.add_argument("--culled-reasons", type=Path, default=Path("work/culled_reasons.csv"))
+    g.add_argument("--reserve", type=Path, default=None,
+                   help="file of crop names (or anything containing dig<P>_<stamp>) never to "
+                        "select, e.g. the model-selection set")
+    g.add_argument("--stable-sampling", action="store_true",
+                   help="order capped cells by a per-crop hash so rebuilds change only the "
+                        "crops whose verdicts changed")
 
 
 def main() -> None:
