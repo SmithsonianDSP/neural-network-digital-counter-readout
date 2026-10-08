@@ -36,6 +36,26 @@ Usage::
     python tools/train_dig_class11.py --diagnostic lopo-dig3
     python tools/train_dig_class11.py --final --epochs 275
     python tools/train_dig_class11.py --export-only
+
+Training recipe (all opt-in; the defaults are the 9001-9020 recipe, bit for bit):
+
+``--aug-profile {legacy,night_aware}``
+    Photometric chain (``augment_lcd.AUG_PROFILES``). ``night_aware`` gates on the
+    crop's mean luma: dark crops (night dig5/dig6) get no veil / glare / white
+    balance and a narrow exposure/contrast jitter; bright crops get the legacy
+    chain with roughly halved probabilities.
+``--geom {legacy,gentle}``
+    IDG geometry (``augment_lcd.GEOM_PROFILES``). ``gentle``: shift {-1,0,1} px,
+    zoom 0.9-1.1, rotation 2 deg, no brightness_range.
+``--lr-decay-frac F`` / ``--lr-end-frac R``
+    0 (default) = Adadelta's constant lr. F > 0: hold the compiled lr for the
+    first (1-F) of the run's epochs, then decay linearly to R x lr (default 0.05)
+    at the last epoch. The run length is ``--max-epochs`` or ``--epochs``; in CV
+    with early stopping, use a fixed budget (e.g. --epochs 125 --patience 999) or
+    the decay never arrives.
+
+Recipe "R1" = ``--aug-profile night_aware --geom gentle --lr-decay-frac 0.2`` on a
+``prepare_joe_data.py --resize stb`` corpus.
 """
 
 from __future__ import annotations
@@ -58,13 +78,15 @@ import tensorflow as tf  # noqa: E402
 try:
     keras = tf.keras
     EarlyStopping = keras.callbacks.EarlyStopping
+    LearningRateScheduler = keras.callbacks.LearningRateScheduler
     ImageDataGenerator = keras.preprocessing.image.ImageDataGenerator
 except AttributeError:  # pragma: no cover - stand-alone Keras 3 install
     import keras  # type: ignore
     EarlyStopping = keras.callbacks.EarlyStopping
+    LearningRateScheduler = keras.callbacks.LearningRateScheduler
     from keras.src.legacy.preprocessing.image import ImageDataGenerator  # type: ignore
 
-from augment_lcd import DEFAULT as AUG_DEFAULT  # noqa: E402
+from augment_lcd import AUG_PROFILES, GEOM_PROFILES  # noqa: E402
 from augment_lcd import make_idg_preprocessing_fn  # noqa: E402
 from dig_data import CLASS_NAMES, load_dirs  # noqa: E402
 from dig_model import build_dig_class11  # noqa: E402
@@ -144,21 +166,66 @@ def assign_folds(user_meta, k=5, by="day"):
     return fold_of_frame
 
 
-def make_datagen(seed):
-    """The notebook's geometric IDG plus the LCD photometric chain.
+def make_datagen(seed, aug_profile="legacy", geom="legacy"):
+    """The geometric IDG plus the LCD photometric chain.
 
     IDG runs its geometry first and then calls ``preprocessing_function``, which
     is the physically right order: haze and glare sit in front of the display,
-    so they are applied to the already-registered glyph.
+    so they are applied to the already-registered glyph. The defaults are the
+    notebook geometry + ``augment_lcd.DEFAULT``.
     """
     return ImageDataGenerator(
-        width_shift_range=[-1, 1],
-        height_shift_range=[-1, 1],
-        brightness_range=[0.8, 1.2],
-        zoom_range=[0.7, 1.3],
-        rotation_range=5,
-        preprocessing_function=make_idg_preprocessing_fn(AUG_DEFAULT, seed),
+        **GEOM_PROFILES[geom],
+        preprocessing_function=make_idg_preprocessing_fn(AUG_PROFILES[aug_profile], seed),
     )
+
+
+def lr_schedule(base_lr, epochs, decay_frac, end_frac=0.05):
+    """Hold ``base_lr`` for the first (1-F) of ``epochs``, then decay linearly so the
+    LAST epoch runs at ``end_frac * base_lr``. Returns None when decay is off."""
+    if not decay_frac or decay_frac <= 0:
+        return None
+    if not 0 < decay_frac <= 1:
+        raise SystemExit("--lr-decay-frac must be in (0, 1]")
+    start = min(epochs - 1, max(0, int(round(epochs * (1.0 - decay_frac)))))
+    span = epochs - start  # decayed epochs; the last one lands on end_frac
+
+    def fn(epoch, lr=None):
+        if epoch < start:
+            return float(base_lr)
+        t = (epoch - start + 1) / span
+        return float(base_lr * (1.0 - (1.0 - end_frac) * t))
+
+    fn.start, fn.span = start, span  # type: ignore[attr-defined]
+    return fn
+
+
+def describe_recipe(args) -> str:
+    """The training-log header: every knob that defines the recipe."""
+    aug = AUG_PROFILES[args.aug_profile]
+    lines = [
+        "=" * 62,
+        "RECIPE",
+        f"  user dir     : {args.user}   upstream: {args.upstream}   "
+        f"user-weight x{args.user_weight}",
+        f"  aug profile  : {args.aug_profile}",
+    ]
+    if hasattr(aug, "dark"):
+        lines += [f"    gate       : mean luma <= {aug.dark_luma_max:g} -> dark",
+                  f"    dark       : {aug.dark}",
+                  f"    bright     : {aug.bright}"]
+    else:
+        lines += [f"    config     : {aug}"]
+    lines += [f"  geom         : {args.geom}  {GEOM_PROFILES[args.geom]}"]
+    if args.lr_decay_frac and args.lr_decay_frac > 0:
+        lines += [f"  lr           : compiled lr, linear decay over the last "
+                  f"{args.lr_decay_frac:g} of the run's epochs to x{args.lr_end_frac:g}"]
+    else:
+        lines += ["  lr           : constant (compiled optimizer, no schedule)"]
+    lines += [f"  seed {args.seed}  batch {args.batch}  epochs {args.epochs}"
+              + (f"  max-epochs {args.max_epochs}" if args.max_epochs else ""),
+              "=" * 62]
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------
@@ -167,16 +234,24 @@ def make_datagen(seed):
 
 
 def fit_once(x_train, y_train, x_val, y_val, *, epochs, batch, patience, seed,
-             tag=""):
+             tag="", aug_profile="legacy", geom="legacy", lr_decay_frac=0.0,
+             lr_end_frac=0.05):
     """Fit a fresh model. ``x_val`` may be None for the final (no-holdout) run."""
     keras.utils.set_random_seed(seed)
     model = build_dig_class11()
 
-    datagen = make_datagen(seed)
+    datagen = make_datagen(seed, aug_profile, geom)
     flow = datagen.flow(x_train.astype(np.float32), onehot(y_train),
                         batch_size=batch, seed=seed)
 
     callbacks = []
+    sched = None
+    if lr_decay_frac and lr_decay_frac > 0:
+        base_lr = float(keras.ops.convert_to_numpy(model.optimizer.learning_rate))
+        sched = lr_schedule(base_lr, epochs, lr_decay_frac, lr_end_frac)
+        callbacks.append(LearningRateScheduler(sched, verbose=0))
+        print(f"[{tag}] lr {base_lr:g} for epochs 1-{sched.start}, then linear to "
+              f"{sched(epochs - 1):g} at epoch {epochs}")
     validation = None
     if x_val is not None and len(x_val):
         validation = (x_val.astype(np.float32), onehot(y_val))
@@ -200,6 +275,11 @@ def fit_once(x_train, y_train, x_val, y_val, *, epochs, batch, patience, seed,
               f"final loss {hist.history['loss'][-1]:.5f}, "
               f"acc {hist.history['accuracy'][-1]:.4f}")
     return model, best, hist
+
+
+def recipe_kwargs(args) -> dict:
+    return dict(aug_profile=args.aug_profile, geom=args.geom,
+                lr_decay_frac=args.lr_decay_frac, lr_end_frac=args.lr_end_frac)
 
 
 def build_train_arrays(x_up, y_up, x_us, y_us, keep_mask, weight=None):
@@ -246,7 +326,8 @@ def run_cv(args, up, us):
         model, best, _ = fit_once(x_train, y_train, x_val, y_val,
                                   epochs=args.max_epochs or args.epochs,
                                   batch=args.batch, patience=args.patience,
-                                  seed=args.seed + fold, tag=f"fold{fold + 1}")
+                                  seed=args.seed + fold, tag=f"fold{fold + 1}",
+                                  **recipe_kwargs(args))
         best_epochs.append(best)
         probs = model.predict(x_val.astype(np.float32), verbose=0)
         oof[val_mask] = probs
@@ -305,7 +386,8 @@ def run_diagnostic(args, up, us):
     model, best, _ = fit_once(x_train, y_train, x_us[val_mask], y_us[val_mask],
                               epochs=args.max_epochs or args.epochs,
                               batch=args.batch, patience=args.patience,
-                              seed=args.seed, tag=args.diagnostic)
+                              seed=args.seed, tag=args.diagnostic,
+                              **recipe_kwargs(args))
 
     probs = model.predict(x_us[val_mask].astype(np.float32), verbose=0)
     pred, conf = probs.argmax(axis=1), probs.max(axis=1)
@@ -328,7 +410,7 @@ def run_final(args, up, us):
 
     model, _, _ = fit_once(x_train, y_train, None, None, epochs=epochs,
                            batch=args.batch, patience=args.patience,
-                           seed=args.seed, tag="final")
+                           seed=args.seed, tag="final", **recipe_kwargs(args))
 
     args.out.mkdir(parents=True, exist_ok=True)
     keras_path = args.out / f"{args.stem}.keras"
@@ -483,11 +565,22 @@ def main(argv=None) -> int:
     ap.add_argument("--fold-by", choices=("day", "frame"), default="day",
                     help="CV grouping: whole capture days (default) or "
                          "round-robin frames (the 9001-9007 behaviour)")
+    ap.add_argument("--aug-profile", choices=sorted(AUG_PROFILES), default="legacy",
+                    help="photometric augmentation profile "
+                         "(default legacy = augment_lcd.DEFAULT)")
+    ap.add_argument("--geom", choices=sorted(GEOM_PROFILES), default="legacy",
+                    help="IDG geometry profile (default legacy = the notebook's)")
+    ap.add_argument("--lr-decay-frac", type=float, default=0.0, metavar="F",
+                    help="0 = constant lr (default); F > 0 = linear decay over the "
+                         "last F of the run's epochs")
+    ap.add_argument("--lr-end-frac", type=float, default=0.05, metavar="R",
+                    help="with --lr-decay-frac: final lr as a fraction of the start lr")
     ap.add_argument("--oof-csv", default="work/cv_oof.csv")
     ap.add_argument("--csv", default=None)
     args = ap.parse_args(argv)
 
     args.stem = f"dig-class11_{args.version}_{args.size}"
+    print(describe_recipe(args))
 
     np.random.seed(args.seed)
     tf.random.set_seed(args.seed)

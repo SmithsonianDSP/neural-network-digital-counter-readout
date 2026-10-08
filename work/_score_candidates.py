@@ -3,7 +3,13 @@ import csv, os, subprocess, sys, collections
 sys.path.insert(0, "tools")
 from grid_review import read_ledger_rows
 
-models = sys.argv[1:]
+# `--resize stb` (first argument) scores with the firmware's resize; default nearest.
+# Non-default resizes get their own cached eval CSVs (eval_<m>_<tag>_<resize>.csv).
+args = sys.argv[1:]
+RESIZE = "nearest"
+if args[:1] == ["--resize"]:
+    RESIZE, args = args[1], args[2:]
+models = args
 der = {}
 for r in csv.DictReader(open("work/b3_derive.csv")):
     der[(r["stamp"], str(r["pos"]).replace("dig", ""))] = r
@@ -14,11 +20,11 @@ probe = {r["stamp"]: r["final"] for r in rows if r["queue"] == "probe_sel"
 
 
 def ev(m, data, tag):
-    out = f"work/eval_{m}_{tag}.csv"
+    out = f"work/eval_{m}_{tag}.csv" if RESIZE == "nearest" else f"work/eval_{m}_{tag}_{RESIZE}.csv"
     if not os.path.exists(out) or os.path.getmtime(out) < os.path.getmtime(f"models/dig-class11_{m}_s2.tflite") \
             or os.path.getmtime(out) < max(os.path.getmtime(os.path.join(data, f)) for f in os.listdir(data)):
         subprocess.run([sys.executable, "tools/eval_dig_model.py", "--model", f"models/dig-class11_{m}_s2.tflite",
-                        "--data", data, "--resize", "nearest", "--csv", out],
+                        "--data", data, "--resize", RESIZE, "--csv", out],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     return list(csv.DictReader(open(out)))
 

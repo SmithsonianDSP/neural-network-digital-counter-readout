@@ -35,8 +35,15 @@ import numpy as np
 __all__ = [
     "AugmentConfig",
     "DEFAULT",
+    "LumaGatedConfig",
+    "NIGHT_AWARE",
+    "AUG_PROFILES",
+    "GEOM_PROFILES",
+    "DARK_LUMA_MAX",
+    "augment",
     "augment_lcd",
     "make_idg_preprocessing_fn",
+    "mean_luma",
 ]
 
 # The model input geometry. Blur sigmas below are expressed in pixels at this
@@ -105,6 +112,105 @@ class AugmentConfig:
 
 
 DEFAULT = AugmentConfig()
+
+
+# --------------------------------------------------------------------------
+# night-aware profile (recipe "R1", 2026-10-08)
+# --------------------------------------------------------------------------
+#
+# DEFAULT was tuned in the 9001 cycle on 228 *daytime* crops and is applied to
+# every crop. Flash-only night crops are already washed out; on night dig6 only
+# ~56% of DEFAULT-augmented views still read correctly with 9018 (day ~88%):
+# veil / glare / white-balance turn faint 3s into 7-looking or blank images that
+# are still labelled 3. NIGHT_AWARE gates on the image's own mean luma.
+#
+# Threshold, measured on 20x32 crops (04_joe_lcd_20x32 and an stb build agree to
+# 0.2) against work/corpus_manifest.csv `bucket`:
+#   flash      n=3015  bimodal BY POSITION: dig6 p5/p50/p95 44/49/62, dig5 67/70/74,
+#                      dig4 84/88/93, dig3 87/92/106, dig2 89/96/106 (the flash
+#                      lights the middle of the display; dig5/dig6 sit in its fall-off)
+#   transition n=1582  p1 64  p5 73  p50 94
+#   day        n=2188  p0 80  p1 97  p5 101  p50 130
+# The flash histogram is empty between 75 and 82 (48.8% <= 75, 49.9% <= 82).
+# 78 sits in that gap and below every day crop: it selects flash dig5/dig6
+# (+ ~10% of transition crops, the dimmest), 0% of day. Flash dig2-dig4 overlap
+# the day tail by luma alone and stay on the (gentler) bright chain.
+DARK_LUMA_MAX = 78.0
+
+# Dark (night dig5/dig6): no veil, no glare lobe, no white-balance shift; narrow
+# exposure/contrast; mild blur / sensor noise / JPEG only.
+NIGHT_DARK = AugmentConfig(
+    blur_p=0.30, blur_sigma=(0.3, 0.7),
+    motion_p=0.08, motion_len=(2, 3),
+    glare_p=0.0,
+    veil_p=0.0,
+    exposure=(0.85, 1.15),
+    contrast=(0.85, 1.10),
+    wb=(1.0, 1.0),
+    noise_sigma=(0.5, 3.0),
+    jpeg_p=0.30, jpeg_quality=(60, 95),
+)
+
+# Bright (day, transition, flash dig2-4): today's chain, probabilities ~halved.
+NIGHT_BRIGHT = DEFAULT.replace(
+    blur_p=0.22, motion_p=0.08, glare_p=0.28, veil_p=0.35, jpeg_p=0.25,
+)
+
+
+def mean_luma(img) -> float:
+    """Rec.601 mean luma of an (H, W, 3) / (H, W[, 1]) array in 0-255 units."""
+    a = np.asarray(img, dtype=np.float32)
+    if a.ndim == 3 and a.shape[2] >= 3:
+        return float((0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]).mean())
+    return float(a.mean())
+
+
+@dataclass(frozen=True)
+class LumaGatedConfig:
+    """Pick ``dark`` when the image's own mean luma <= ``dark_luma_max``, else ``bright``.
+
+    The gate reads the image as :func:`augment` receives it -- inside the IDG that
+    is *after* geometry (and after IDG's ``brightness_range``, if the geometry
+    profile has one; the ``gentle`` geometry does not).
+    """
+
+    dark: AugmentConfig
+    bright: AugmentConfig
+    dark_luma_max: float = DARK_LUMA_MAX
+
+    def pick(self, img) -> AugmentConfig:
+        return self.dark if mean_luma(img) <= self.dark_luma_max else self.bright
+
+
+NIGHT_AWARE = LumaGatedConfig(dark=NIGHT_DARK, bright=NIGHT_BRIGHT)
+
+# Named photometric profiles. "legacy" is DEFAULT itself, so a legacy run makes
+# exactly the same augment_lcd() calls (and RNG draws) as before the profiles.
+AUG_PROFILES = {
+    "legacy": DEFAULT,
+    "night_aware": NIGHT_AWARE,
+}
+
+# Named ImageDataGenerator geometry profiles (kwargs, minus preprocessing_function).
+# NB on Keras' list semantics: a list shift range is np.random.choice(list) times a
+# random sign, so legacy's [-1, 1] shifts EVERY image by exactly 1 px on both axes
+# (never 0); gentle's [-1, 0, 1] gives 0 px a third of the time. zoom draws zx, zy
+# independently. brightness_range (legacy only) duplicates the photometric exposure.
+GEOM_PROFILES = {
+    "legacy": dict(  # jomjol's notebook, used for 9001-9020
+        width_shift_range=[-1, 1],
+        height_shift_range=[-1, 1],
+        brightness_range=[0.8, 1.2],
+        zoom_range=[0.7, 1.3],
+        rotation_range=5,
+    ),
+    "gentle": dict(  # fixed, aligned ROIs: +-1 px, +-10% zoom, 2 deg, no brightness
+        width_shift_range=[-1, 0, 1],
+        height_shift_range=[-1, 0, 1],
+        zoom_range=[0.9, 1.1],
+        rotation_range=2,
+    ),
+}
 
 
 # --------------------------------------------------------------------------
@@ -265,12 +371,19 @@ def augment_lcd(img: np.ndarray, rng: np.random.Generator,
     return x[..., 0] if squeeze_back else x
 
 
+def augment(img: np.ndarray, rng: np.random.Generator, cfg=DEFAULT) -> np.ndarray:
+    """:func:`augment_lcd` for either a plain AugmentConfig or a LumaGatedConfig."""
+    if isinstance(cfg, LumaGatedConfig):
+        cfg = cfg.pick(img)
+    return augment_lcd(img, rng, cfg)
+
+
 # --------------------------------------------------------------------------
 # Keras ImageDataGenerator glue
 # --------------------------------------------------------------------------
 
 
-def make_idg_preprocessing_fn(cfg: AugmentConfig = DEFAULT, seed: int | None = None):
+def make_idg_preprocessing_fn(cfg=DEFAULT, seed: int | None = None):
     """Return a single-argument closure for ``IDG(preprocessing_function=...)``.
 
     IDG calls this once per image with a float32 ``(32, 20, 3)`` array of RAW
@@ -291,7 +404,7 @@ def make_idg_preprocessing_fn(cfg: AugmentConfig = DEFAULT, seed: int | None = N
             child = np.random.SeedSequence(entropy=root.entropy, spawn_key=(pid,))
             state["rng"] = np.random.default_rng(child)
             state["pid"] = pid
-        return augment_lcd(img, state["rng"], cfg)
+        return augment(img, state["rng"], cfg)
 
     _preprocess.cfg = cfg  # type: ignore[attr-defined]
     return _preprocess

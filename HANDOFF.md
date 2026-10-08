@@ -1,6 +1,6 @@
-# Handoff: electric meter LCD — batch 3 and the 9015 retrain
+# Handoff: electric meter LCD — batch 3, recipe R1 and 9021
 
-Written 2026-10-03. Supersedes `HANDOFF-9002.md` (the 2026-08-08 handoff, archived
+Written 2026-10-03, extended through 2026-10-08 (§5c is the headline). Supersedes `HANDOFF-9002.md` (the 2026-08-08 handoff, archived
 unchanged — read it for the 9001/9002 history, §5c's class-3 lesson and §5d's
 derived-label technique). Original problem statement: `HANDOFF-ELECTRIC-LCD.md`.
 
@@ -8,21 +8,19 @@ derived-label technique). Original problem statement: `HANDOFF-ELECTRIC-LCD.md`.
 
 ## 1. State
 
-- **DEPLOYED: `models/dig-class11_9015_s2.tflite`** (float, 349 KB), loaded 2026-10-03
-  over the network (no SD pull needed for model swaps). Rollback: `dig-class11_9002_s2`
-  is still on the card.
-- **Not yet verified on device.** The ROIs were re-set at the last remount (early Oct, to
-  pull the SD card), so the current framing is in no test set. Verdict = 2–3 nights of new
-  history CSVs vs 9002's Aug 15–Sep 30 baseline (§7.1).
+- **DEPLOYED: `models/dig-class11_9021_s2.tflite`** (float, 349 KB), loaded 2026-10-08
+  over the network (no SD pull needed for model swaps). = recipe R1, seed 123 (§5c).
+  Rollback: `dig-class11_9015_s2` (deployed 2026-10-03 → 10-08, field results §5b), then
+  `9002`. Joseph reset the HA dashboard's accuracy/error counters at the swap.
+- **9021 not yet verified on device.** Verdict = a few nights of history CSVs vs 9015's
+  Oct 4–8 field numbers (§5b) and 9002's baseline, same calculation (§7.1).
 - **Batch 3:** 82,795 crops / 16,559 frames, 2026-08-15 → 09-30 (+2 frames on 08-07), in
   `AIOTED-digital-rawdigits/<YYYYmmdd>/<HH>/`, labels = 9002's predictions. Daily history
   CSVs `data_YYYY-MM-DD.csv` (08-07 → 09-30, no header, 13 cols: ts, name, raw, value, pre,
   rate, abs, error, dig2..dig6). Image dirs 08-08 → 08-14 do not exist.
 - **Review ledger:** `work/review_ledger.csv` (append-only; backups
   `work/review_ledger.backup-*.csv`). Every training and holdout crop has a human verdict.
-- **Candidate held, not deployed: `models/dig-class11_9018_s2.tflite`** (2026-10-08).
-  Best on every test set (§5a), but 3× more fragile under int8 and on the same 7/3 knife
-  edge as the bad seeds. Decision deferred to the mid-Nov rollover batch (§7.1).
+- `9018` (legacy recipe, best of its seeds) was held, and is now superseded by 9021.
 - **Corpus:** `joes-samples/` top level = 6,785 crops (`work/corpus_manifest.csv`) — the
   9018–9020 corpus, built by `build_corpus.py --from-ledger --stable-sampling --reserve
   work/selection_night_manifest.txt`. 9015's corpus is the newest `joes-samples/_backup_*/`;
@@ -185,6 +183,88 @@ confidence, so on-device confidence cannot reveal it.
 selection set (never the holdout); check the int8 build as a robustness probe even when
 shipping float; never reuse an E\* across a changed corpus — re-run CV.
 
+## 5b. Field results — 9015 on the device (Oct 4–8)
+
+From the history CSVs, reading-screen frames only (dig2 reads 5), same calculation for
+both models. Joseph: "really happy with the results."
+
+| | 9002 (Aug 15 – Sep 30, 47 days) | 9015 (Oct 4–8, 5 days) |
+|---|---|---|
+| night 21–05 accepted | 29.0% | **84.0%** |
+| twilight accepted | 53.7% | **81.0%** |
+| day 09–16 accepted | 89.7% | **96.5%** |
+| accepted readings / day | 88 | **128** |
+| steps of +2 or more / day | 3.83 | **0.40** |
+
+Upward misreads accepted by AIOTE in those 5 days (all caught by the HA filter + resync):
+
+1. **10-04 04:35–06:15 — every dig6 `3` read as `7` for the whole 3-period** (raw 59482 →
+   59487 ×100 min → 59484). AIOTE rejected three as too high, then accepted the fourth at
+   05:03 as its rate window grew. Resync 09:21.
+2. **10-06 ~08:40 — 59522 → 59524, 12 min apart, `23` never read.** 2 kWh in 12 min is
+   impossible; the 3-period was read as 2 (downward) or 4 (+1, silent). Only one "too
+   high" frame was ever registered — the §6 +2 rule in action.
+3. **10-07 02:26 — one frame of 59536 (dig6 5→6, +1) accepted**, corrected by resync at
+   02:54.
+
+**dig6 class 3 is the weak spot in the field** (2 of 3 events, one exactly 3→7). This
+favours 9015 over 9018 (9018 made more 3→7 on the test sets: 5 vs 2) and makes the night
+dig6 3/7 boundary (§7.2) the top model-side target. ROI saving is now on with a 90-day
+rolling window (Joseph's choice; the long window avoids SD wear), so January has ~160k
+crops of supply, including real night 3s under the current framing.
+
+## 5c. The breakthrough (2026-10-08): recipe R1 → 9021
+
+**Two inherited defaults were the real limit on night accuracy — not data, not labels.**
+
+1. **The photometric augmenter destroyed night signal.** Built in 9001 for 228 daytime
+   crops, it applied veiling haze (p 0.7), glare lobes and white-balance shifts to *every*
+   crop. On night dig6 only ~49% of augmented training views stayed readable (day ~89%);
+   night 3s were turned into 7-looking or blank images still labelled 3
+   (`work/augment_night_37.png`). That was the seed lottery: 2 of 3 seeds learned the
+   wrong 7/3 rule from noise. Under the legacy recipe, 4× more data didn't help the median
+   seed (learning curve, 25% point: median selection night dig6 67.6% vs 59.0% at 100%).
+2. **Train/deploy resize mismatch.** The firmware (verified in the jomjol/AI-on-the-Edge-Device
+   source: `CImageBasis::Resize` → `stbir_resize_uint8` with library defaults) shrinks the
+   full-res ROI with a **Mitchell** filter and feeds raw 0–255 RGB floats. Training and eval
+   used PIL NEAREST (1 pixel in ~30). `dig_data.stb_resize` now emulates the firmware;
+   `DEVICE_RESIZE = "stb"`. Saved SD crops are JPEG q90, so no resize reproduces the device
+   exactly from them (~2% residual); averaging filters agree 97.8–98.0% vs nearest 97.05%.
+
+**Recipe R1** (all opt-in flags; defaults reproduce the legacy recipe bit-for-bit,
+`tools/test_train_recipe.py`): 20×32 build with `prepare_joe_data.py --resize stb`
+(JPEG 4:4:4); `--aug-profile night_aware` (luma gate at 78 on the 20×32 input: dark crops
+get no haze/glare/WB and narrow exposure/contrast jitter; bright crops get the old chain
+at ~half probability); `--geom gentle` (shift ±1 incl. 0, zoom 0.9–1.1, rotation 2°, no
+second brightness jitter); `--lr-decay-frac 0.2` (Adadelta held at 1.0, then linear decay
+to 0.05 over the last 20%). Survival of augmented night dig6 views: 49% → 79%.
+
+| (stb input) | hold all | night rdg frames | hold nt dig6 | sel nt dig6 | probe | up errors |
+|---|---|---|---|---|---|---|
+| 9015 | 97.6% | 79.2% | 83.3% | 95.0% | 63/70 | 1 |
+| R1 s42 | 99.4% | 93.8% | 93.8% | 97.8% | 67/70 | 1 |
+| R1 s7 | 98.9% | 91.7% | 91.7% | 97.8% | 68/70 | 3 |
+| **R1 s123 = 9021** | **99.6%** | **95.8%** | **95.8%** | **99.3%** | **69/70** | **0** |
+
+All three seeds converge — the lottery is gone. No +1/+2 upward errors in any R1 seed;
+day 250/250 and transition 135/135 for all. 9021 gates: **0 regressions vs 9002 (86
+fixed)** — the first model to pass the strict gate; `1→7` 0; int8 `_q` nearly identical
+(sel nt dig6 98.6%, probe 68/70 — no longer fragile); upstream **99.5%** (was 89–93%:
+the old augmentation hurt generic digit reading too); old Aug holdout 97.92%.
+
+**⚠ Trade-off: large-shift tolerance.** ROI-shift agreement at s=0.06 is 0.935 (9015:
+0.961; 9002: 0.882); at s=0.03 it is 0.998 (9015: 0.987). s=0.06 is about the size of the
+09-04 framing change. Joseph prefers low-light accuracy over shift tolerance and re-sets
+alignment at each remount, so accepted — but **after any remount, watch daytime dig6 on the
+dashboard for a day**; if errors appear, widen `--geom` slightly (the known knob).
+
+Bets placed before the results (all won; the two lowest-odds ones were the most wrong):
+median seed beats legacy (90%) ✓; ≥2 seeds ≥90% (70%) ✓; all 3 ≥90% (50%) ✓; best beats
+9015 (40%) ✓; day/transition ≥99.5% (85%) ✓; fewer upward errors (60%) ✓.
+
+**Not yet done for R1:** CV to confirm E\* (125 was found under the legacy recipe; the LR
+decay makes the end point much less sensitive); the learning curve on R1 (§7.3).
+
 ## 6. Known gaps
 
 > **⚠ Scrutinize every step of +2 kWh or more between consecutive accepted readings —
@@ -251,36 +331,34 @@ shipping float; never reuse an E\* across a changed corpus — re-run CV.
 
 ## 7. Next actions, highest value first
 
-1. **On-device verification** after 2–3 nights: drop new CSVs (and crops, if handy) into
-   `AIOTED-digital-rawdigits`; compare night accepted-reading rate and non-monotone count
-   vs 9002's Aug 15–Sep 30 baseline. Rollback = switch the model file back to 9002.
-   **List every step of +2 kWh or more in the accepted series** (§6 note) and read the raw dig6
-   sequence around each; for 2026-10-04's 2→7, see whether the 7 sat in the 2-run or the
-   3-run.
-   **Also decide 9015 vs 9018 here:** score both (float and `_q`) on the rollover batch —
-   the first data with post-remount framing and a new dig2 digit. Swap earlier only if the
-   HA dashboard shows 9015 doing worse on device than its test numbers.
-2. **Support the night dig6 7/3 boundary** (§5a). First carve a *new* selection set from
-   held-back crops in the same Sept stretches (the current one can't judge a cluster once
-   it's trained on). Then add wide-strip-reviewed night dig6 7s with this washout plus the
-   washed 3s they're confused with (~15–20 min of review) and the ~1,900 reviewed crops
-   currently capped out. Success test: **all 3 seeds** get the cluster right.
-3. **Variance reduction in the recipe:** stochastic weight averaging over the last ~15
-   epochs of a final run (still one exported model). Re-run the 3-seed protocol and
-   compare spread.
-4. **Night `00000` 0s:** queue ~60 dig3/5/6 night `00000` crops for a screen pass
+1. **On-device verification of 9021** after a few nights: drop new CSVs into
+   `AIOTED-digital-rawdigits`; same calculation as §5b (accepted rate by bucket, accepted
+   readings/day, +2-or-more steps/day) vs 9015 (§5b) and 9002. Rollback = 9015.
+   **List every step of +2 kWh or more in the accepted series** (§6 note) and read the raw
+   dig6 sequence around each. (The 10-04 event under 9015 was settled: a whole 3-period read
+   as 7, §5b.)
+2. **60000 rollover (~mid-Nov):** dig2 changes 5→6 — no model has seen a dig2 6. Watch the
+   dashboard that day (a dig2 misread = every reading rejected = outage). Before the next
+   batch, re-check screen typing (dig2 is the screen discriminator) and the derivation.
+   The 90-day ROI window will hold the crops.
+3. **R1 housekeeping (compute only):** CV to confirm E\* for R1; then the learning curve
+   on R1 (25/50/75% × 3 seeds) to size January's review. Make augmentation reproducible
+   per seed (`make_idg_preprocessing_fn` keys its RNG on the process id today).
+4. **Only if 9021 shows night dig6 3/7 trouble in the field:** no geometry at all on dark
+   crops (even ±1 px shifts push night 3s toward 7 for legacy-trained models); then more
+   night 7/3 boundary data (carve a new selection set first, §5a). Stochastic weight
+   averaging is no longer needed for variance (R1 seeds converge).
+5. **Night `00000` 0s:** queue ~60 dig3/5/6 night `00000` crops for a screen pass
    (labels certain) and relax the test-share cap for class 0 at night.
-5. **Dimmer-flash experiment** (AIOTE LED intensity): one night's capture. The night
+6. **Dimmer-flash experiment** (AIOTE LED intensity): one night's capture. The night
    failure is over-exposure washing single segments — a physical check beats more analysis.
-6. **Wide-strip re-verify of the ~550 soft night labels** — only if §7.1 shows night dig6
+7. **Wide-strip re-verify of the ~550 soft night labels** — only if §7.1 shows night dig6
    errors still reaching HA.
-7. **Joseph's idea: train hopeless night dig6 crops as `N`** so the model abstains instead
+8. **Joseph's idea: train hopeless night dig6 crops as `N`** so the model abstains instead
    of guessing. Candidate set exists (his `x` calls). Risks: N bleeding to other positions
    (no positional input), contradictory pairs. Measure as a variant on the same holdout:
    abstentions gained vs wrong readings removed. Only worth it if §7.1 shows upward dig6
    errors still getting through the HA filter.
-8. Before the meter reaches 60000 (~mid-Nov): dig2 changes 5→6 — re-check screen typing
-   (dig2 is the screen discriminator) and derivation.
 
 ## 8. Environment
 

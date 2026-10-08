@@ -10,10 +10,18 @@ x per-label matrix, per-frame label table) and writes a contact sheet PNG
 tall) so the captures can be eyeballed for labeling mistakes.
 
 --build resizes every joes-samples/*.jpg to the model's native 20x32 input
-size (PIL NEAREST) and writes it to 04_joe_lcd_20x32/<same basename>, JPEG
-quality=100. Refuses to run if the output dir already exists unless --force
-is given (in which case it is cleared first). Never touches
+size and writes it to 04_joe_lcd_20x32/<same basename>, JPEG quality=100.
+Refuses to run if the output dir already exists unless --force is given (in
+which case it is cleared first). Never touches
 03_data_resize_all-use_for_training/ or anything else.
+
+    --resize nearest   (default) PIL NEAREST + PIL's default 4:2:0 chroma
+                       subsampling -- byte-for-byte the historical build.
+    --resize stb       dig_data.stb_resize, the firmware's Mitchell downscale
+                       (also bilinear / area / lanczos). Any non-nearest build is
+                       saved 4:4:4 (subsampling=0) so the 20x32 chroma survives.
+    --src DIR / --out DIR override joes-samples/ and 04_joe_lcd_20x32/ (relative
+    paths resolve against the repo root). Filenames stay *.jpg either way.
 """
 
 from __future__ import annotations
@@ -30,9 +38,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from dig_data import (  # noqa: E402
     CLASS_NAMES,
+    RESAMPLE,
     parse_frame,
     parse_label,
     parse_position,
+    resize_image,
     screen_type,
 )
 
@@ -252,11 +262,15 @@ def build_contact_sheets(frames, by_frame):
 # --------------------------------------------------------------------------
 
 
-def build(force: bool):
+def build(force: bool, resize: str = "nearest"):
     records, bad = gather_samples()
     report_bad(bad)
     if bad:
         print("\nERROR: refusing to build with unparsed filenames present. Fix them first.")
+        return 1
+
+    if os.path.normcase(os.path.abspath(BUILD_DIR)) == os.path.normcase(os.path.abspath(SRC_DIR)):
+        print("ERROR: --out is the source directory; refusing (--force would delete it).")
         return 1
 
     if os.path.exists(BUILD_DIR):
@@ -269,15 +283,22 @@ def build(force: bool):
         shutil.rmtree(BUILD_DIR)
 
     os.makedirs(BUILD_DIR, exist_ok=True)
+    print(f"source {SRC_DIR}\noutput {BUILD_DIR}\nresize {resize}"
+          + ("" if resize == "nearest" else "  (JPEG q100, 4:4:4)"))
 
     written = 0
     label_counts = {c: 0 for c in CLASS_NAMES}
     for r in records:
         src = r["path"]
         img = Image.open(src).convert("RGB")
-        img = img.resize((TARGET_W, TARGET_H), Image.Resampling.NEAREST)
         dst = os.path.join(BUILD_DIR, os.path.basename(src))
-        img.save(dst, "JPEG", quality=100)
+        if resize == "nearest":
+            # The historical build, kept bit-identical for reproducibility.
+            img = img.resize((TARGET_W, TARGET_H), Image.Resampling.NEAREST)
+            img.save(dst, "JPEG", quality=100)
+        else:
+            img = resize_image(img, TARGET_W, TARGET_H, resize)
+            img.save(dst, "JPEG", quality=100, subsampling=0)
         written += 1
         label_counts[CLASS_NAMES[r["label"]]] += 1
 
@@ -306,12 +327,23 @@ def main(argv=None):
     mode.add_argument("--audit", action="store_true", help="audit joes-samples/ and write a contact sheet")
     mode.add_argument("--build", action="store_true", help="resize joes-samples/ into 04_joe_lcd_20x32/")
     ap.add_argument("--force", action="store_true", help="with --build: clear an existing output dir first")
+    ap.add_argument("--resize", default="nearest", choices=sorted(RESAMPLE),
+                    help="with --build: 20x32 resize filter (default nearest = historical; "
+                         "stb = the firmware's Mitchell downscale)")
+    ap.add_argument("--src", default=None, help="source dir (default joes-samples/)")
+    ap.add_argument("--out", default=None, help="with --build: output dir (default 04_joe_lcd_20x32/)")
     args = ap.parse_args(argv)
+
+    global SRC_DIR, BUILD_DIR
+    if args.src:
+        SRC_DIR = os.path.join(REPO_ROOT, args.src) if not os.path.isabs(args.src) else args.src
+    if args.out:
+        BUILD_DIR = os.path.join(REPO_ROOT, args.out) if not os.path.isabs(args.out) else args.out
 
     if args.audit:
         audit()
         return 0
-    return build(force=args.force)
+    return build(force=args.force, resize=args.resize)
 
 
 if __name__ == "__main__":

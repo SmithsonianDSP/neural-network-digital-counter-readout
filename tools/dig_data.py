@@ -34,7 +34,59 @@ RESAMPLE = {
     "bilinear": Image.Resampling.BILINEAR,
     "area": Image.Resampling.BOX,  # PIL's BOX == area averaging
     "lanczos": Image.Resampling.LANCZOS,
+    "stb": None,  # the firmware's resize -- see stb_resize(); not a PIL filter
 }
+
+# What the device does (jomjol/AI-on-the-Edge-Device, verified 2026-10-08):
+# ClassFlowCNNGeneral cuts the ROI at full resolution (the image saved to SD), then
+# CImageBasis::Resize calls stbir_resize_uint8(...) with library defaults -- for a
+# downscale that is stb_image_resize v1's Mitchell filter (B = C = 1/3), clamped edges,
+# linear (no sRGB) arithmetic -- and CTfLiteClass feeds the raw 0-255 RGB as floats.
+# Training/eval used PIL NEAREST until then, a train/deploy mismatch.
+DEVICE_RESIZE = "stb"
+
+
+def _mitchell(x: np.ndarray) -> np.ndarray:
+    x = np.abs(x)
+    return np.where(x < 1, (16 + x * x * (21 * x - 36)) / 18,
+                    np.where(x < 2, (32 + x * (-60 + x * (36 - 7 * x))) / 18, 0.0))
+
+
+def _stb_axis_weights(n_in: int, n_out: int) -> np.ndarray:
+    """[n_out, n_in] normalised Mitchell weights for one axis (downscale or upscale)."""
+    scale = n_out / n_in
+    support = 2.0 / scale if scale < 1 else 2.0      # filter widens when shrinking
+    w = np.zeros((n_out, n_in), dtype=np.float64)
+    for j in range(n_out):
+        c = (j + 0.5) / scale - 0.5                  # output centre in input coords
+        lo, hi = int(np.floor(c - support)), int(np.ceil(c + support))
+        for i in range(lo, hi + 1):
+            d = (i - c) * scale if scale < 1 else (i - c)
+            v = float(_mitchell(np.array(d)))
+            if v:
+                w[j, min(max(i, 0), n_in - 1)] += v  # clamp edges
+        w[j] /= w[j].sum()
+    return w
+
+
+_STB_CACHE: dict = {}
+
+
+def stb_resize(img: Image.Image, w: int, h: int) -> Image.Image:
+    """Emulate the firmware's stbir_resize_uint8 (Mitchell, clamp, linear)."""
+    a = np.asarray(img.convert("RGB"), dtype=np.float64)
+    key = (a.shape[1], a.shape[0], w, h)
+    if key not in _STB_CACHE:
+        _STB_CACHE[key] = (_stb_axis_weights(a.shape[1], w), _stb_axis_weights(a.shape[0], h))
+    wx, wy = _STB_CACHE[key]
+    out = np.einsum("yi,ixc->yxc", wy, np.einsum("xj,ijc->ixc", wx, a))
+    return Image.fromarray(np.clip(np.round(out), 0, 255).astype(np.uint8), "RGB")
+
+
+def resize_image(img: Image.Image, w: int, h: int, mode: str = DEVICE_RESIZE) -> Image.Image:
+    if mode == "stb":
+        return stb_resize(img, w, h)
+    return img.resize((w, h), RESAMPLE[mode])
 
 _POS_RE = re.compile(r"_dig(\d+)_")
 _FRAME_RE = re.compile(r"(\d{8}-\d{6})")
@@ -193,10 +245,12 @@ def screen_type(frame_labels: dict, full_labels: dict | None = None) -> str:
 
 
 def load_image(path: str, resize: str = "nearest") -> np.ndarray:
-    """Load one image as uint8 [32, 20, 3] RGB, resizing only if needed."""
+    """Load one image as uint8 [32, 20, 3] RGB, resizing only if needed.
+
+    Pass resize=DEVICE_RESIZE ("stb") to match what the firmware feeds the model."""
     img = Image.open(path).convert("RGB")
     if img.size != (TARGET_W, TARGET_H):
-        img = img.resize((TARGET_W, TARGET_H), RESAMPLE[resize])
+        img = resize_image(img, TARGET_W, TARGET_H, resize)
     return np.array(img, dtype=np.uint8)
 
 
@@ -224,8 +278,8 @@ def crop_light_stats(path: str, resize: str = "nearest") -> dict:
     """
     img = Image.open(path).convert("RGB")
     y = luma(img)
-    small = img if img.size == (TARGET_W, TARGET_H) else img.resize(
-        (TARGET_W, TARGET_H), RESAMPLE[resize])
+    small = img if img.size == (TARGET_W, TARGET_H) else resize_image(
+        img, TARGET_W, TARGET_H, resize)
     return {
         "mean": float(y.mean()),
         "median": float(np.median(y)),

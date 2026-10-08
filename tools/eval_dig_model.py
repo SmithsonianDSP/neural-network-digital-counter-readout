@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from dig_data import (  # noqa: E402
     CLASS_NAMES,
     RESAMPLE,
+    resize_image,
     TARGET_H,
     TARGET_W,
     contrast,
@@ -284,7 +285,6 @@ def roi_shift(model, meta, resize="nearest", shifts=(0.03, 0.06)):
         print("  (no native-resolution images in the evaluated set -- skipped)")
         return
 
-    filt = RESAMPLE[resize]
     records = []  # (meta, s, agree_frac, n_distinct, mean_conf)
 
     for m in native:
@@ -300,7 +300,7 @@ def roi_shift(model, meta, resize="nearest", shifts=(0.03, 0.06)):
                     left = max(0, min(left, W - cw))
                     top = max(0, min(top, H - ch))
                     crop = img.crop((left, top, left + cw, top + ch))
-                    crops.append(np.array(crop.resize((TARGET_W, TARGET_H), filt), dtype=np.uint8))
+                    crops.append(np.array(resize_image(crop, TARGET_W, TARGET_H, resize), dtype=np.uint8))
             probs = model.predict(np.stack(crops).astype(np.float32))
             preds = probs.argmax(axis=1)
             centre = preds[4]  # dy=0, dx=0

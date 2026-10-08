@@ -4,6 +4,8 @@ Usage:
     python tools/augment_preview.py --stats [--n 2000] [--data joes-samples]
     python tools/augment_preview.py --sheet [--out work/augment_sheet.png]
     python tools/augment_preview.py --probe [--model dig-class11_2000_s2.tflite]
+    python tools/augment_preview.py --survival [--profile P --geom G --corpus DIR]
+    python tools/augment_preview.py --night-sheet [--profile P --geom G --corpus DIR]
 
 ``--stats`` compares the contrast distribution (dig_data.contrast = p95-p5 of
 luma) of the real corpus against augmented samples drawn from it. The goal is
@@ -18,6 +20,18 @@ a human can confirm the segments are still legible after degradation.
 shipped model is *expected* to do badly on these -- that is the whole reason
 for the retrain. This is only a smoke test that augmented 7s have not become
 literally unreadable.
+
+``--survival`` measures what training actually feeds: for each light bucket
+(``work/corpus_manifest.csv`` ``bucket``) it samples ``--per-bucket`` crops (all
+positions, and separately dig6 only) from ``--corpus`` (a 20x32 build), draws
+``--views`` augmented views each through the SAME path as training (IDG geometry
+profile ``--geom`` -> photometric profile ``--profile``) and reports the share
+that ``--keras-model`` still reads as the label. A view the reference model cannot
+read is (to a first approximation) a view that teaches noise.
+
+``--night-sheet`` renders the night dig6 3s and 7s contact sheet: col 1 = the real
+crop, cols 2.. = augmented views, each captioned ``lab -> model read`` (red when
+wrong).
 """
 
 from __future__ import annotations
@@ -32,8 +46,25 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from augment_lcd import DEFAULT, augment_lcd, make_idg_preprocessing_fn  # noqa: E402,F401
-from dig_data import CLASS_NAMES, TARGET_H, TARGET_W, contrast, load_dirs  # noqa: E402
+from augment_lcd import (  # noqa: E402,F401
+    AUG_PROFILES,
+    DEFAULT,
+    GEOM_PROFILES,
+    LumaGatedConfig,
+    augment,
+    augment_lcd,
+    make_idg_preprocessing_fn,
+)
+from dig_data import (  # noqa: E402
+    CLASS_NAMES,
+    RESAMPLE,
+    TARGET_H,
+    TARGET_W,
+    contrast,
+    load_dirs,
+    load_image,
+    parse_label,
+)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PCTS = (5, 25, 50, 75, 95)
@@ -262,6 +293,178 @@ def cmd_probe(args) -> int:
 
 
 # --------------------------------------------------------------------------
+# training-path views: survival rate + night contact sheet
+# --------------------------------------------------------------------------
+
+BUCKETS = ("flash", "transition", "day")
+
+
+def _manifest_rows(args):
+    """Manifest rows whose file exists in --corpus (dict rows + 'path')."""
+    import csv
+
+    corpus = args.corpus
+    out = []
+    with open(args.manifest, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            path = os.path.join(corpus, r["file"])
+            if os.path.exists(path):
+                r["path"] = path
+                out.append(r)
+    if not out:
+        raise SystemExit(f"no manifest rows found in {corpus}")
+    return out
+
+
+class TrainingView:
+    """Augmented views exactly as train_dig_class11.make_datagen produces them:
+    IDG geometry (``apply_transform``) and then the photometric profile (what IDG's
+    ``standardize`` -> ``preprocessing_function`` does)."""
+
+    def __init__(self, profile: str, geom: str, seed: int):
+        from train_dig_class11 import ImageDataGenerator  # Keras resolution lives there
+
+        np.random.seed(seed)  # IDG draws geometry from the global numpy RNG
+        self.idg = ImageDataGenerator(**GEOM_PROFILES[geom])
+        # Same per-image call as make_idg_preprocessing_fn, but on a plain seeded
+        # Generator: that closure re-keys its stream on the process id, so its
+        # draws (unlike these) differ from run to run.
+        self.rng = np.random.default_rng(seed)
+        self.cfg = AUG_PROFILES[profile]
+
+    def __call__(self, img_u8: np.ndarray) -> np.ndarray:
+        x = img_u8.astype(np.float32)
+        params = self.idg.get_random_transform(x.shape)
+        x = self.idg.apply_transform(x, params)
+        # the gate decision, read where the training path reads it (post-geometry)
+        self.last_dark = (isinstance(self.cfg, LumaGatedConfig)
+                          and self.cfg.pick(x) is self.cfg.dark)
+        return augment(x, self.rng, self.cfg)
+
+
+def _load_keras(path):
+    os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+    import tensorflow as tf
+
+    return tf.keras.models.load_model(path)
+
+
+def _predict(model, arrs) -> np.ndarray:
+    if not len(arrs):
+        return np.zeros((0,), dtype=np.int64)
+    probs = model.predict(np.stack(arrs).astype(np.float32), batch_size=256, verbose=0)
+    return probs.argmax(axis=1)
+
+
+def cmd_survival(args) -> int:
+    rows = _manifest_rows(args)
+    model = _load_keras(args.keras_model)
+    view = TrainingView(args.profile, args.geom, args.seed)
+    rng = np.random.default_rng(args.seed)
+
+    print(f"corpus  : {args.corpus}  ({len(rows)} manifest crops present)")
+    print(f"model   : {args.keras_model}")
+    print(f"recipe  : profile={args.profile}  geom={args.geom}  "
+          f"{args.per_bucket}/bucket x {args.views} views, seed {args.seed}")
+    print()
+    print(f"  {'bucket':<11} {'sample':<7} {'n':>4} {'real ok':>8} {'aug ok':>8} "
+          f"{'dark-gated':>10}   per position (aug ok)")
+    for bucket in BUCKETS:
+        for sample in ("all", "dig6"):
+            pool = [r for r in rows if r["bucket"] == bucket
+                    and (sample == "all" or r["pos"] == "dig6")]
+            if not pool:
+                continue
+            take = rng.choice(len(pool), size=min(args.per_bucket, len(pool)), replace=False)
+            picked = [pool[i] for i in sorted(take)]
+            imgs = [load_image(r["path"], resize=args.resize) for r in picked]
+            labels = np.array([parse_label(r["file"]) for r in picked])
+            real = _predict(model, imgs)
+            views, vlab, vpos, dark = [], [], [], 0
+            for img, lab, r in zip(imgs, labels, picked):
+                for _ in range(args.views):
+                    v = view(img)
+                    dark += view.last_dark
+                    views.append(v)
+                    vlab.append(lab)
+                    vpos.append(r["pos"])
+            pred = _predict(model, views)
+            ok = pred == np.array(vlab)
+            per_pos = ""
+            if sample == "all":
+                vpos = np.array(vpos)
+                per_pos = "  ".join(f"{p[3:]}:{ok[vpos == p].mean() * 100:.0f}"
+                                    for p in sorted(set(vpos)))
+            print(f"  {bucket:<11} {sample:<7} {len(picked):>4} "
+                  f"{(real == labels).mean() * 100:7.1f}% {ok.mean() * 100:7.1f}% "
+                  f"{dark / len(views) * 100:9.1f}%   {per_pos}")
+    if args.profile == "legacy" and args.geom == "legacy":
+        print("\n  (reference, measured 2026-10-08 on 04_joe_lcd_20x32: flash 75.4% "
+              "(dig6 56.0%), transition 83.4%, day 88.4%)")
+    return 0
+
+
+def cmd_night_sheet(args) -> int:
+    from PIL import ImageDraw, ImageFont
+
+    rows = _manifest_rows(args)
+    model = _load_keras(args.keras_model)
+    view = TrainingView(args.profile, args.geom, args.seed)
+    rng = np.random.default_rng(args.seed)
+
+    picks = []
+    for lab in ("3", "7"):
+        pool = [r for r in rows if r["bucket"] == "flash" and r["pos"] == "dig6"
+                and r["label"] == lab]
+        take = rng.choice(len(pool), size=min(args.sheet_rows, len(pool)), replace=False)
+        picks += [pool[i] for i in sorted(take)]
+
+    zoom, sep, cap = args.zoom, 4, 16
+    cols = args.variants + 1
+    cw, ch = TARGET_W * zoom, TARGET_H * zoom
+    head = 40
+    W = sep + cols * (cw + sep)
+    H = head + len(picks) * (ch + cap + sep)
+    im = Image.new("RGB", (W, H), (255, 255, 255))
+    draw = ImageDraw.Draw(im)
+    try:
+        font = ImageFont.truetype("arial.ttf", 12)
+    except OSError:
+        font = ImageFont.load_default()
+    corpus_name = os.path.basename(os.path.normpath(args.corpus))
+    draw.text((sep, 4), f"night dig6 training crops ({corpus_name}): col 1 = real crop, "
+              f"cols 2-{cols} = what training feeds", fill=(0, 0, 0), font=font)
+    draw.text((sep, 20), f"geom={args.geom} + photometric={args.profile};  caption = "
+              f"{os.path.basename(args.keras_model)}'s read (red = wrong)", fill=(0, 0, 0), font=font)
+
+    n_ok = n_tot = 0
+    for r_i, r in enumerate(picks):
+        img = load_image(r["path"], resize=args.resize)
+        cells = [img.astype(np.float32)] + [view(img) for _ in range(args.variants)]
+        preds = _predict(model, cells)
+        lab = r["label"]
+        y0 = head + r_i * (ch + cap + sep)
+        for c, (cell, pr) in enumerate(zip(cells, preds)):
+            x0 = sep + c * (cw + sep)
+            u8 = np.clip(cell, 0, 255).astype(np.uint8)
+            im.paste(Image.fromarray(np.kron(u8, np.ones((zoom, zoom, 1), np.uint8))), (x0, y0))
+            read = CLASS_NAMES[int(pr)]
+            good = read == lab
+            if c:
+                n_ok += good
+                n_tot += 1
+            txt = f"{'real ' if c == 0 else ''}lab{lab} -> {read}"
+            draw.text((x0 + 1, y0 + ch + 1), txt, fill=(0, 0, 0) if good else (220, 0, 0), font=font)
+
+    out = args.out or os.path.join(REPO, "work", f"augment_night_37_{args.profile}_{args.geom}.png")
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    im.save(out)
+    print(f"wrote {out}  ({W}x{H}, {len(picks)} rows x {cols} cols); "
+          f"augmented views read correctly: {n_ok}/{n_tot} ({100 * n_ok / max(n_tot, 1):.1f}%)")
+    return 0
+
+
+# --------------------------------------------------------------------------
 
 
 def main(argv=None) -> int:
@@ -278,10 +481,32 @@ def main(argv=None) -> int:
     p.add_argument("--model", default=os.path.join(REPO, "dig-class11_2000_s2.tflite"))
     p.add_argument("--reps", type=int, default=20, help="augmentations per crop for --probe")
     p.add_argument("--seed", type=int, default=0)
+    # --survival / --night-sheet
+    p.add_argument("--survival", action="store_true",
+                   help="augmented-view survival rate by light bucket")
+    p.add_argument("--night-sheet", action="store_true",
+                   help="night dig6 3s/7s contact sheet of training views")
+    p.add_argument("--profile", choices=sorted(AUG_PROFILES), default="legacy")
+    p.add_argument("--geom", choices=sorted(GEOM_PROFILES), default="legacy")
+    p.add_argument("--corpus", default=os.path.join(REPO, "04_joe_lcd_20x32"),
+                   help="20x32 corpus dir for --survival / --night-sheet")
+    p.add_argument("--resize", default="nearest", choices=sorted(RESAMPLE),
+                   help="resize for --corpus crops that are not already 20x32")
+    p.add_argument("--manifest", default=os.path.join(REPO, "work", "corpus_manifest.csv"))
+    p.add_argument("--keras-model",
+                   default=os.path.join(REPO, "models", "dig-class11_9018_s2.keras"))
+    p.add_argument("--per-bucket", type=int, default=400)
+    p.add_argument("--views", type=int, default=4)
+    p.add_argument("--sheet-rows", type=int, default=6, help="rows per label (3, 7)")
     args = p.parse_args(argv)
 
-    if not (args.stats or args.sheet or args.probe):
-        p.error("choose at least one of --stats / --sheet / --probe")
+    if not (args.stats or args.sheet or args.probe or args.survival or args.night_sheet):
+        p.error("choose at least one of --stats / --sheet / --probe / --survival / --night-sheet")
+    if args.night_sheet:
+        if args.zoom == 6:
+            args.zoom = 4
+        if args.variants == 11:
+            args.variants = 8
 
     rc = 0
     if args.stats:
@@ -290,6 +515,10 @@ def main(argv=None) -> int:
         rc |= cmd_sheet(args)
     if args.probe:
         rc |= cmd_probe(args)
+    if args.survival:
+        rc |= cmd_survival(args)
+    if args.night_sheet:
+        rc |= cmd_night_sheet(args)
     return rc
 
 
