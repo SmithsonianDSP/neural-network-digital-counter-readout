@@ -46,7 +46,10 @@ Training recipe (all opt-in; the defaults are the 9001-9020 recipe, bit for bit)
     chain with roughly halved probabilities.
 ``--geom {legacy,gentle}``
     IDG geometry (``augment_lcd.GEOM_PROFILES``). ``gentle``: shift {-1,0,1} px,
-    zoom 0.9-1.1, rotation 2 deg, no brightness_range.
+    zoom 0.9-1.1, rotation 2 deg, no brightness_range. ``split_gentle`` (R1b) /
+    ``split_none`` (R1c): per-image geometry gated on the input's mean luma (<= 78
+    = dark): dark crops get ``gentle`` / no geometry; bright crops get wider
+    geometry (shift {-2..2} px, zoom 0.85-1.15, rotation 3 deg, no brightness).
 ``--lr-decay-frac F`` / ``--lr-end-frac R``
     0 (default) = Adadelta's constant lr. F > 0: hold the compiled lr for the
     first (1-F) of the run's epochs, then decay linearly to R x lr (default 0.05)
@@ -86,7 +89,7 @@ except AttributeError:  # pragma: no cover - stand-alone Keras 3 install
     LearningRateScheduler = keras.callbacks.LearningRateScheduler
     from keras.src.legacy.preprocessing.image import ImageDataGenerator  # type: ignore
 
-from augment_lcd import AUG_PROFILES, GEOM_PROFILES  # noqa: E402
+from augment_lcd import AUG_PROFILES, GEOM_PROFILES, SplitGeom, mean_luma  # noqa: E402
 from augment_lcd import make_idg_preprocessing_fn  # noqa: E402
 from dig_data import CLASS_NAMES, load_dirs  # noqa: E402
 from dig_model import build_dig_class11  # noqa: E402
@@ -173,11 +176,54 @@ def make_datagen(seed, aug_profile="legacy", geom="legacy"):
     is the physically right order: haze and glare sit in front of the display,
     so they are applied to the already-registered glyph. The defaults are the
     notebook geometry + ``augment_lcd.DEFAULT``.
+
+    A ``SplitGeom`` profile cannot be expressed as IDG kwargs (IDG applies one
+    geometry to every image), so the outer IDG gets no geometry and its
+    ``preprocessing_function`` does per-image geometry and THEN photometrics --
+    the same order as the plain path.
     """
-    return ImageDataGenerator(
-        **GEOM_PROFILES[geom],
-        preprocessing_function=make_idg_preprocessing_fn(AUG_PROFILES[aug_profile], seed),
-    )
+    spec = GEOM_PROFILES[geom]
+    photo = make_idg_preprocessing_fn(AUG_PROFILES[aug_profile], seed)
+    if isinstance(spec, SplitGeom):
+        geo = make_geometry_fn(spec)
+
+        def _geom_then_photo(x):
+            return photo(geo(x))
+
+        return ImageDataGenerator(preprocessing_function=_geom_then_photo)
+    return ImageDataGenerator(**spec, preprocessing_function=photo)
+
+
+def make_geometry_fn(spec):
+    """x (H, W, C float32, raw 0-255) -> geometrically transformed x.
+
+    ``spec`` is IDG kwargs or a ``SplitGeom``. For SplitGeom the gate reads the
+    mean luma of the input *before* geometry and routes to the dark or bright IDG
+    (dark=None -> returned untouched). Random draws come from the global numpy
+    RNG, exactly as IDG's own geometry does (``flow(seed=...)`` reseeds it).
+    """
+    if not isinstance(spec, SplitGeom):
+        idg = ImageDataGenerator(**spec)
+
+        def _plain(x):
+            return idg.apply_transform(x, idg.get_random_transform(x.shape))
+
+        _plain.route = lambda x: "all"  # type: ignore[attr-defined]
+        return _plain
+
+    dark = ImageDataGenerator(**spec.dark) if spec.dark is not None else None
+    bright = ImageDataGenerator(**spec.bright)
+
+    def _split(x):
+        idg = dark if mean_luma(x) <= spec.dark_luma_max else bright
+        if idg is None:
+            return x
+        return idg.apply_transform(x, idg.get_random_transform(x.shape))
+
+    _split.dark_idg, _split.bright_idg = dark, bright  # type: ignore[attr-defined]
+    _split.route = (lambda x: "dark" if mean_luma(x) <= spec.dark_luma_max  # type: ignore[attr-defined]
+                    else "bright")
+    return _split
 
 
 def lr_schedule(base_lr, epochs, decay_frac, end_frac=0.05):
@@ -216,7 +262,13 @@ def describe_recipe(args) -> str:
                   f"    bright     : {aug.bright}"]
     else:
         lines += [f"    config     : {aug}"]
-    lines += [f"  geom         : {args.geom}  {GEOM_PROFILES[args.geom]}"]
+    g = GEOM_PROFILES[args.geom]
+    if isinstance(g, SplitGeom):
+        lines += [f"  geom         : {args.geom}  (per image, mean luma before geometry)",
+                  f"    dark <= {g.dark_luma_max:g}: {g.dark if g.dark is not None else 'NO geometry'}",
+                  f"    bright   : {g.bright}"]
+    else:
+        lines += [f"  geom         : {args.geom}  {g}"]
     if args.lr_decay_frac and args.lr_decay_frac > 0:
         lines += [f"  lr           : compiled lr, linear decay over the last "
                   f"{args.lr_decay_frac:g} of the run's epochs to x{args.lr_end_frac:g}"]

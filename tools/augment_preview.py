@@ -322,10 +322,10 @@ class TrainingView:
     ``standardize`` -> ``preprocessing_function`` does)."""
 
     def __init__(self, profile: str, geom: str, seed: int):
-        from train_dig_class11 import ImageDataGenerator  # Keras resolution lives there
+        from train_dig_class11 import make_geometry_fn  # the training code's geometry
 
         np.random.seed(seed)  # IDG draws geometry from the global numpy RNG
-        self.idg = ImageDataGenerator(**GEOM_PROFILES[geom])
+        self.geo = make_geometry_fn(GEOM_PROFILES[geom])
         # Same per-image call as make_idg_preprocessing_fn, but on a plain seeded
         # Generator: that closure re-keys its stream on the process id, so its
         # draws (unlike these) differ from run to run.
@@ -334,8 +334,8 @@ class TrainingView:
 
     def __call__(self, img_u8: np.ndarray) -> np.ndarray:
         x = img_u8.astype(np.float32)
-        params = self.idg.get_random_transform(x.shape)
-        x = self.idg.apply_transform(x, params)
+        self.last_route = self.geo.route(x)  # geometry gate: input, pre-geometry
+        x = self.geo(x)
         # the gate decision, read where the training path reads it (post-geometry)
         self.last_dark = (isinstance(self.cfg, LumaGatedConfig)
                           and self.cfg.pick(x) is self.cfg.dark)
@@ -368,7 +368,7 @@ def cmd_survival(args) -> int:
           f"{args.per_bucket}/bucket x {args.views} views, seed {args.seed}")
     print()
     print(f"  {'bucket':<11} {'sample':<7} {'n':>4} {'real ok':>8} {'aug ok':>8} "
-          f"{'dark-gated':>10}   per position (aug ok)")
+          f"{'photo-dark':>10} {'geom-dark':>9}   per position (aug ok)")
     for bucket in BUCKETS:
         for sample in ("all", "dig6"):
             pool = [r for r in rows if r["bucket"] == bucket
@@ -380,11 +380,12 @@ def cmd_survival(args) -> int:
             imgs = [load_image(r["path"], resize=args.resize) for r in picked]
             labels = np.array([parse_label(r["file"]) for r in picked])
             real = _predict(model, imgs)
-            views, vlab, vpos, dark = [], [], [], 0
+            views, vlab, vpos, dark, gdark = [], [], [], 0, 0
             for img, lab, r in zip(imgs, labels, picked):
                 for _ in range(args.views):
                     v = view(img)
                     dark += view.last_dark
+                    gdark += view.last_route == "dark"
                     views.append(v)
                     vlab.append(lab)
                     vpos.append(r["pos"])
@@ -397,7 +398,7 @@ def cmd_survival(args) -> int:
                                     for p in sorted(set(vpos)))
             print(f"  {bucket:<11} {sample:<7} {len(picked):>4} "
                   f"{(real == labels).mean() * 100:7.1f}% {ok.mean() * 100:7.1f}% "
-                  f"{dark / len(views) * 100:9.1f}%   {per_pos}")
+                  f"{dark / len(views) * 100:9.1f}% {gdark / len(views) * 100:8.1f}%   {per_pos}")
     if args.profile == "legacy" and args.geom == "legacy":
         print("\n  (reference, measured 2026-10-08 on 04_joe_lcd_20x32: flash 75.4% "
               "(dig6 56.0%), transition 83.4%, day 88.4%)")

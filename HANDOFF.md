@@ -1,6 +1,6 @@
-# Handoff: electric meter LCD — batch 3, recipe R1 and 9021
+# Handoff: electric meter LCD — batch 3, recipe R1/R1b and 9022
 
-Written 2026-10-03, extended through 2026-10-08 (§5c is the headline). Supersedes `HANDOFF-9002.md` (the 2026-08-08 handoff, archived
+Written 2026-10-03, extended through 2026-10-09 (§5c–§5d are the headline). Supersedes `HANDOFF-9002.md` (the 2026-08-08 handoff, archived
 unchanged — read it for the 9001/9002 history, §5c's class-3 lesson and §5d's
 derived-label technique). Original problem statement: `HANDOFF-ELECTRIC-LCD.md`.
 
@@ -8,12 +8,13 @@ derived-label technique). Original problem statement: `HANDOFF-ELECTRIC-LCD.md`.
 
 ## 1. State
 
-- **DEPLOYED: `models/dig-class11_9021_s2.tflite`** (float, 349 KB), loaded 2026-10-08
-  over the network (no SD pull needed for model swaps). = recipe R1, seed 123 (§5c).
-  Rollback: `dig-class11_9015_s2` (deployed 2026-10-03 → 10-08, field results §5b), then
-  `9002`. Joseph reset the HA dashboard's accuracy/error counters at the swap.
-- **9021 not yet verified on device.** Verdict = a few nights of history CSVs vs 9015's
-  Oct 4–8 field numbers (§5b) and 9002's baseline, same calculation (§7.1).
+- **DEPLOYED: `models/dig-class11_9022_s2.tflite`** (float, 349 KB), loaded 2026-10-09
+  over the network (no SD pull needed for model swaps). = recipe **R1b**, seed 42 (§5d):
+  9021's night accuracy plus the best framing-shift tolerance of any model.
+  Rollback chain: `9021` (R1, deployed 10-08 → 10-09) → `9015` (10-03 → 10-08, §5b) → `9002`.
+- **Field so far:** 9021's one full night (Oct 8→9) had **no misreads and no errors —
+  every accepted step +1** (Joseph, from the HA dashboard). 9022 not yet verified on
+  device; verdict = a few nights of history CSVs, same calculation as §5b (§7.1).
 - **Batch 3:** 82,795 crops / 16,559 frames, 2026-08-15 → 09-30 (+2 frames on 08-07), in
   `AIOTED-digital-rawdigits/<YYYYmmdd>/<HH>/`, labels = 9002's predictions. Daily history
   CSVs `data_YYYY-MM-DD.csv` (08-07 → 09-30, no header, 13 cols: ts, name, raw, value, pre,
@@ -252,11 +253,9 @@ fixed)** — the first model to pass the strict gate; `1→7` 0; int8 `_q` nearl
 (sel nt dig6 98.6%, probe 68/70 — no longer fragile); upstream **99.5%** (was 89–93%:
 the old augmentation hurt generic digit reading too); old Aug holdout 97.92%.
 
-**⚠ Trade-off: large-shift tolerance.** ROI-shift agreement at s=0.06 is 0.935 (9015:
-0.961; 9002: 0.882); at s=0.03 it is 0.998 (9015: 0.987). s=0.06 is about the size of the
-09-04 framing change. Joseph prefers low-light accuracy over shift tolerance and re-sets
-alignment at each remount, so accepted — but **after any remount, watch daytime dig6 on the
-dashboard for a day**; if errors appear, widen `--geom` slightly (the known knob).
+**Trade-off (resolved by R1b, §5d): large-shift tolerance.** R1's ROI-shift agreement at
+s=0.06 was 0.935 (9015: 0.961). The geometry split fixed it (9022: 0.981) at no night cost.
+Still glance at the dashboard for a day after any remount.
 
 Bets placed before the results (all won; the two lowest-odds ones were the most wrong):
 median seed beats legacy (90%) ✓; ≥2 seeds ≥90% (70%) ✓; all 3 ≥90% (50%) ✓; best beats
@@ -264,6 +263,43 @@ median seed beats legacy (90%) ✓; ≥2 seeds ≥90% (70%) ✓; all 3 ≥90% (5
 
 **Not yet done for R1:** CV to confirm E\* (125 was found under the legacy recipe; the LR
 decay makes the end point much less sensitive); the learning curve on R1 (§7.3).
+
+## 5d. R1b and the R1 learning curve (2026-10-09)
+
+**Geometry split (R1b = `--geom split_gentle`).** R1's one weakness was large-shift
+tolerance. The geometric transform is now chosen per crop by the same luma gate (78) as the
+photometric profile: dark crops keep `gentle` (shift ±1 incl. 0, zoom 0.9–1.1, rot 2°);
+bright crops get `GEOM_WIDE` (shift ±2 incl. 0, zoom 0.85–1.15, rot 3°). `split_none`
+(R1c) skips geometry on dark crops entirely. Both opt-in; no speed cost.
+
+| (stb input) | hold all | night rdg frames | sel nt dig6 | probe | ROI-shift s=0.03 / 0.06 |
+|---|---|---|---|---|---|
+| 9015 | 97.6% | 79.2% | 95.0% | 63/70 | 0.987 / 0.961 |
+| 9021 (R1 s123) | 99.6% | 95.8% | 99.3% | 69/70 | 0.998 / **0.935** |
+| **9022 (R1b s42)** | **99.6%** | **95.8%** | **99.3%** | **69/70** | 0.997 / **0.981** |
+| R1b s7 | 99.6% | 95.8% | 99.3% | 69/70 | 0.998 / 0.980 |
+| R1b s123 | 99.1% | 91.7% | 98.6% | 68/70 | — |
+| R1c s42 / s7 / s123 | 99.5 / 99.5 / 98.7% | 95.8 / 93.8 / 91.7% | 99.3 / 98.6 / 98.6% | 69 / 69 / 68 | — |
+
+9022 gates: 0 regressions vs 9002 (86 fixed), `1→7` 0, 0 upward night dig6 errors,
+day 250/250, transition 135/135, old Aug holdout 98.75%, upstream 98.5% (info), int8 `_q`
+sel night dig6 97.1% (9021: 98.6% — float is shipped). Two seeds agree on the shift gain
+(0.981 / 0.980), so it is the recipe, not luck. R1c buys nothing over R1b.
+
+**R1 learning curve** (nested stratified subsets, same crops as the legacy 25% run,
+equal gradient-step budget, 3 seeds each, stb input):
+
+| corpus share | legacy recipe: sel nt dig6 | R1: sel nt dig6 | R1 median | R1 night rdg frames |
+|---|---|---|---|---|
+| 25% (1.7k) | 67.6 / 86.3 / 61.2% | 92.8 / 96.4 / 97.1% | 96.4% | 91.7–95.8% |
+| 50% (3.4k) | — | 92.8 / 95.7 / 97.8% | 95.7% | 87.5–95.8% |
+| 100% (6.8k) | 95.0 / 55.4 / 59.0% (9018–20) | 97.8 / 97.8 / 99.3% | 97.8% | 91.7–95.8% |
+
+On the same 1.7k crops the recipe change is worth ~30 points; 4× more data is worth ~1.5
+(mostly by lifting the worst seed — consistency, not ceiling). **January guidance: review
+for novelty, not volume** — cold-weather nights, dig2 `6` after the 60000 rollover, any
+new framing or washout regime. A few hundred crops of a genuinely new condition beat
+thousands more of known conditions. Keep the corpus around its current ~6.8k.
 
 ## 6. Known gaps
 
@@ -341,9 +377,10 @@ decay makes the end point much less sensitive); the learning curve on R1 (§7.3)
    dashboard that day (a dig2 misread = every reading rejected = outage). Before the next
    batch, re-check screen typing (dig2 is the screen discriminator) and the derivation.
    The 90-day ROI window will hold the crops.
-3. **R1 housekeeping (compute only):** CV to confirm E\* for R1; then the learning curve
-   on R1 (25/50/75% × 3 seeds) to size January's review. Make augmentation reproducible
-   per seed (`make_idg_preprocessing_fn` keys its RNG on the process id today).
+3. **R1b housekeeping (compute only):** CV to confirm E\* for R1b (125 inherited; the LR
+   decay makes it insensitive). Make augmentation reproducible per seed
+   (`make_idg_preprocessing_fn` keys its RNG on the process id today). The learning curve
+   is done (§5d).
 4. **Only if 9021 shows night dig6 3/7 trouble in the field:** no geometry at all on dark
    crops (even ±1 px shifts push night 3s toward 7 for legacy-trained models); then more
    night 7/3 boundary data (carve a new selection set first, §5a). Stochastic weight

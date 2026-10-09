@@ -39,6 +39,8 @@ __all__ = [
     "NIGHT_AWARE",
     "AUG_PROFILES",
     "GEOM_PROFILES",
+    "GEOM_WIDE",
+    "SplitGeom",
     "DARK_LUMA_MAX",
     "augment",
     "augment_lcd",
@@ -211,6 +213,32 @@ GEOM_PROFILES = {
         rotation_range=2,
     ),
 }
+
+# Wider geometry for BRIGHT crops only (split profiles below): R1 (9021) lost ROI-shift
+# stability (s=0.06 agreement 0.935 vs 9015's 0.961), while night dig6 3s flip to 7
+# under even a 1 px shift. [-2..2] x random sign -> 0 px 1/5, +-1 px 2/5, +-2 px 2/5.
+GEOM_WIDE = dict(
+    width_shift_range=[-2, -1, 0, 1, 2],
+    height_shift_range=[-2, -1, 0, 1, 2],
+    zoom_range=[0.85, 1.15],
+    rotation_range=3,
+)
+
+
+@dataclass(frozen=True)
+class SplitGeom:
+    """Per-image geometry chosen by the crop's own mean luma, read on the input
+    BEFORE geometry: luma <= ``dark_luma_max`` -> ``dark`` (IDG kwargs, or None = no
+    geometric transform at all), else ``bright``. Keras' IDG applies one geometry to
+    every image, so train_dig_class11.make_geometry_fn does this per image."""
+
+    dark: dict | None
+    bright: dict
+    dark_luma_max: float = DARK_LUMA_MAX
+
+
+GEOM_PROFILES["split_gentle"] = SplitGeom(dark=GEOM_PROFILES["gentle"], bright=GEOM_WIDE)  # R1b
+GEOM_PROFILES["split_none"] = SplitGeom(dark=None, bright=GEOM_WIDE)  # R1c
 
 
 # --------------------------------------------------------------------------
